@@ -2,71 +2,21 @@ export interface Utilisateur {
     id: number;
     nom_utilisateur: string;
     email: string;
-    telephone: string | null;
-    cni: string | null;
-    role: string;
-    cree_le: string; // ISO format date string
+    telephone?: string;
+    cni?: string;
+    role: 'proprietaire' | 'locataire';
+    cree_le: string; // Date au format ISO string
 }
 
 export interface Maison {
     id: number;
     proprietaire_id: number;
     adresse: string;
-    latitude: string | null;
-    longitude: string | null;
-    description: string | null;
+    latitude?: number;
+    longitude?: number;
+    description?: string;
     cree_le: string;
-    proprietaire?: Utilisateur; // Peut être inclus lors de la sérialisation
-}
-
-export interface Chambre {
-    id: number;
-    maison_id: number;
-    titre: string;
-    description: string | null;
-    taille: string;
-    type: 'simple' | 'appartement' | 'maison';
-    meublee: boolean;
-    salle_de_bain: boolean;
-    prix: string; // Garder comme string si Decimal de Python est renvoyé
-    disponible: boolean;
-    cree_le: string;
-    maison?: Maison; // Peut être inclus
-    medias?: Media[]; // Peut être inclus
-}
-
-export interface Contrat {
-    id: number;
-    locataire_id: number;
-    chambre_id: number;
-    date_debut: string;
-    date_fin: string;
-    montant_caution: string;
-    mois_caution: number | null;
-    description: string | null;
-    mode_paiement: string;
-    periodicite: 'journalier' | 'hebdomadaire' | 'mensuel';
-    statut: string;
-    cree_le: string;
-}
-
-export interface Paiement {
-    id: number;
-    contrat_id: number;
-    montant: string;
-    statut: 'payé' | 'impayé';
-    date_echeance: string;
-    date_paiement: string | null;
-    cree_le: string;
-}
-
-export interface RendezVous {
-    id: number;
-    locataire_id: number;
-    chambre_id: number;
-    date_heure: string;
-    statut: 'en_attente' | 'confirmé' | 'annulé';
-    cree_le: string;
+    proprietaire?: Utilisateur; // Peut être inclus si ton API le joint
 }
 
 export interface Media {
@@ -74,6 +24,69 @@ export interface Media {
     chambre_id: number;
     url: string;
     type: 'photo' | 'video';
-    description: string | null;
+    description?: string;
     cree_le: string;
+}
+
+export interface Chambre {
+    id: number;
+    maison_id: number;
+    titre: string;
+    description?: string;
+    taille?: string;
+    type: 'simple' | 'appartement' | 'maison';
+    meublee: boolean;
+    salle_de_bain: boolean;
+    prix: number; // Assumons que le prix est un nombre si ton API le renvoie comme tel
+    disponible: boolean;
+    cree_le: string;
+    maison?: Maison; // Peut être inclus si ton API le joint
+    medias?: Media[]; // Peut être inclus si ton API le joint
+}
+
+export interface Contrat {
+    id: number;
+    locataire_id: number;
+    chambre_id: number;
+    date_debut: string; // Date au format ISO string
+    date_fin: string; // Date au format ISO string
+    montant_caution: number;
+    mois_caution: number;
+    type_paiement: 'journalier' | 'hebdomadaire' | 'mensuel';
+    cree_le: string;
+    locataire?: Utilisateur; // Peut être inclus si ton API le joint
+    chambre?: Chambre; // Peut être inclus si ton API le joint
+}
+
+export interface Paiement {
+    id: number;
+    contrat_id: number;
+    montant: number;
+    date_paiement: string; // Date au format ISO string
+    statut: 'payé' | 'impayé' | 'partiel';
+    cree_le: string;
+    contrat?: Contrat; // Peut être inclus si ton API le joint (très utile ici)
+}
+
+export interface RendezVous {
+    id: number;
+    locataire_id: number;
+    chambre_id: number;
+    date_heure: string; // Date et heure au format ISO string
+    statut: 'en_attente' | 'confirme' | 'annule';
+    cree_le: string;
+    locataire?: Utilisateur;
+    chambre?: Chambre;
+}
+
+export interface Probleme {
+    id: number;
+    contrat_id: number;
+    signale_par: number;
+    description: string;
+    type: 'plomberie' | 'electricite' | 'autre';
+    responsable: 'locataire' | 'proprietaire';
+    resolu: boolean;
+    cree_le: string;
+    contrat?: Contrat;
 }
