@@ -59,9 +59,6 @@ class Chambre(db.Model):
     def __repr__(self):
         return f'<Chambre {self.titre} (Maison ID: {self.maison_id})>'
 
-# Ajoute les autres modèles ici, en te basant sur le script SQL :
-# Contrat, Paiement, RendezVous, Media, Probleme
-
 class Contrat(db.Model):
     __tablename__ = 'contrats'
     id = db.Column(db.Integer, primary_key=True)
