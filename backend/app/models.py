@@ -1,41 +1,39 @@
-from app import db
+# backend/models.py
+
 from datetime import datetime
+from . import db # Assure-toi que db est bien importé de ton __init__.py
 
 class Utilisateur(db.Model):
-    __tablename__ = 'utilisateurs' # Spécifie le nom de la table SQL
+    __tablename__ = 'utilisateurs'
     id = db.Column(db.Integer, primary_key=True)
     nom_utilisateur = db.Column(db.String(255))
-    email = db.Column(db.String(255), unique=True, nullable=False) # L'email doit être unique et non nul
+    email = db.Column(db.String(255))
     telephone = db.Column(db.String(255))
     cni = db.Column(db.String(255))
     role = db.Column(db.String(255)) # 'proprietaire' | 'locataire'
-    cree_le = db.Column(db.DateTime, default=datetime.utcnow) # Utilise datetime.utcnow pour un timestamp
+    cree_le = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relations
-    maisons = db.relationship('Maison', backref='proprietaire', lazy=True)
-    contrats_locataire = db.relationship('Contrat', backref='locataire', lazy=True, foreign_keys='Contrat.locataire_id')
-    rendez_vous_locataire = db.relationship('RendezVous', backref='locataire', lazy=True, foreign_keys='RendezVous.locataire_id')
-    problemes_signales = db.relationship('Probleme', backref='signale_par_utilisateur', lazy=True, foreign_keys='Probleme.signale_par')
+    # Relations où Utilisateur est le parent ou est lié
+    maisons = db.relationship('Maison', back_populates='proprietaire', lazy=True)
+    contrats_locataire = db.relationship('Contrat', back_populates='locataire', lazy=True)
+    rendez_vous = db.relationship('RendezVous', back_populates='locataire', lazy=True)
+    problemes_signales = db.relationship('Probleme', back_populates='signale_par_utilisateur', lazy=True)
 
-
-    def __repr__(self):
-        return f'<Utilisateur {self.nom_utilisateur} ({self.role})>'
 
 class Maison(db.Model):
     __tablename__ = 'maisons'
     id = db.Column(db.Integer, primary_key=True)
     proprietaire_id = db.Column(db.Integer, db.ForeignKey('utilisateurs.id'), nullable=False)
     adresse = db.Column(db.String(255))
-    latitude = db.Column(db.Numeric(10, 8)) # Précision pour la latitude/longitude
-    longitude = db.Column(db.Numeric(11, 8)) # Précision pour la latitude/longitude
+    latitude = db.Column(db.Numeric)
+    longitude = db.Column(db.Numeric)
     description = db.Column(db.Text)
     cree_le = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relation
-    chambres = db.relationship('Chambre', backref='maison', lazy=True)
+    # Relations
+    proprietaire = db.relationship('Utilisateur', back_populates='maisons')
+    chambres = db.relationship('Chambre', back_populates='maison', lazy=True)
 
-    def __repr__(self):
-        return f'<Maison {self.adresse}>'
 
 class Chambre(db.Model):
     __tablename__ = 'chambres'
@@ -43,21 +41,20 @@ class Chambre(db.Model):
     maison_id = db.Column(db.Integer, db.ForeignKey('maisons.id'), nullable=False)
     titre = db.Column(db.String(255))
     description = db.Column(db.Text)
-    taille = db.Column(db.String(255)) # ex: '12m²'
+    taille = db.Column(db.String(255)) # ex: 12m²
     type = db.Column(db.String(255)) # 'simple' | 'appartement' | 'maison'
     meublee = db.Column(db.Boolean)
     salle_de_bain = db.Column(db.Boolean)
-    prix = db.Column(db.Numeric(10, 2)) # Précision pour le prix (ex: 1234.50)
-    disponible = db.Column(db.Boolean, default=True) # Par défaut, une chambre est disponible
+    prix = db.Column(db.Numeric)
+    disponible = db.Column(db.Boolean)
     cree_le = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relations
-    contrats = db.relationship('Contrat', backref='chambre', lazy=True)
-    rendez_vous = db.relationship('RendezVous', backref='chambre', lazy=True)
-    medias = db.relationship('Media', backref='chambre', lazy=True)
+    maison = db.relationship('Maison', back_populates='chambres')
+    contrats_chambre = db.relationship('Contrat', back_populates='chambre', lazy=True)
+    rendez_vous = db.relationship('RendezVous', back_populates='chambre', lazy=True)
+    medias = db.relationship('Media', back_populates='chambre', lazy=True)
 
-    def __repr__(self):
-        return f'<Chambre {self.titre} (Maison ID: {self.maison_id})>'
 
 class Contrat(db.Model):
     __tablename__ = 'contrats'
@@ -74,25 +71,27 @@ class Contrat(db.Model):
     statut = db.Column(db.String(255)) # 'actif' | 'resilié'
     cree_le = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relations
-    paiements = db.relationship('Paiement', backref='contrat', lazy=True)
-    problemes = db.relationship('Probleme', backref='contrat', lazy=True)
+    # Relations : Utilisation de back_populates pour une clarté bidirectionnelle
+    locataire = db.relationship('Utilisateur', back_populates='contrats_locataire')
+    chambre = db.relationship('Chambre', back_populates='contrats_chambre')
 
-    def __repr__(self):
-        return f'<Contrat {self.id} - Locataire: {self.locataire_id} - Chambre: {self.chambre_id}>'
+    # Paiements et Problèmes aussi en back_populates pour éviter les conflits
+    paiements = db.relationship('Paiement', back_populates='contrat', lazy=True)
+    problemes = db.relationship('Probleme', back_populates='contrat', lazy=True)
+
 
 class Paiement(db.Model):
     __tablename__ = 'paiements'
     id = db.Column(db.Integer, primary_key=True)
     contrat_id = db.Column(db.Integer, db.ForeignKey('contrats.id'), nullable=False)
     montant = db.Column(db.Numeric(10, 2))
-    statut = db.Column(db.String(255)) # 'payé' | 'impayé'
-    date_echeance = db.Column(db.Date)
-    date_paiement = db.Column(db.DateTime) # Peut être null si impayé
+    date_paiement = db.Column(db.DateTime)
+    statut = db.Column(db.String(255)) # 'payé' | 'impayé' | 'partiel'
     cree_le = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __repr__(self):
-        return f'<Paiement {self.id} - Contrat: {self.contrat_id} - Montant: {self.montant}>'
+    # Relation inverse du contrat
+    contrat = db.relationship('Contrat', back_populates='paiements')
+
 
 class RendezVous(db.Model):
     __tablename__ = 'rendez_vous'
@@ -100,11 +99,13 @@ class RendezVous(db.Model):
     locataire_id = db.Column(db.Integer, db.ForeignKey('utilisateurs.id'), nullable=False)
     chambre_id = db.Column(db.Integer, db.ForeignKey('chambres.id'), nullable=False)
     date_heure = db.Column(db.DateTime)
-    statut = db.Column(db.String(255)) # 'en_attente' | 'confirmé' | 'annulé'
+    statut = db.Column(db.String(255)) # 'en_attente' | 'confirme' | 'annule'
     cree_le = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __repr__(self):
-        return f'<RendezVous {self.id} - Locataire: {self.locataire_id} - Chambre: {self.chambre_id}>'
+    # Relations
+    locataire = db.relationship('Utilisateur', back_populates='rendez_vous')
+    chambre = db.relationship('Chambre', back_populates='rendez_vous')
+
 
 class Media(db.Model):
     __tablename__ = 'medias'
@@ -115,19 +116,21 @@ class Media(db.Model):
     description = db.Column(db.Text)
     cree_le = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __repr__(self):
-        return f'<Media {self.id} - Chambre: {self.chambre_id} - Type: {self.type}>'
+    # Relation
+    chambre = db.relationship('Chambre', back_populates='medias')
+
 
 class Probleme(db.Model):
     __tablename__ = 'problemes'
     id = db.Column(db.Integer, primary_key=True)
     contrat_id = db.Column(db.Integer, db.ForeignKey('contrats.id'), nullable=False)
-    signale_par = db.Column(db.Integer, db.ForeignKey('utilisateurs.id')) # Utilisateur qui a signalé
+    signale_par = db.Column(db.Integer, db.ForeignKey('utilisateurs.id'), nullable=False) # L'utilisateur qui a signalé
     description = db.Column(db.Text)
     type = db.Column(db.String(255)) # 'plomberie' | 'electricite' | 'autre'
     responsable = db.Column(db.String(255)) # 'locataire' | 'proprietaire'
-    resolu = db.Column(db.Boolean, default=False) # Par défaut, un problème n'est pas résolu
+    resolu = db.Column(db.Boolean)
     cree_le = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __repr__(self):
-        return f'<Probleme {self.id} - Contrat: {self.contrat_id} - Type: {self.type}>'
+    # Relations
+    contrat = db.relationship('Contrat', back_populates='problemes') # Relation Contrat <-> Probleme
+    signale_par_utilisateur = db.relationship('Utilisateur', back_populates='problemes_signales', foreign_keys=[signale_par]) # Lien vers l'utilisateur qui a signalé

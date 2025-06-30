@@ -48,14 +48,17 @@ export interface Contrat {
     id: number;
     locataire_id: number;
     chambre_id: number;
-    date_debut: string; // Date au format ISO string
-    date_fin: string; // Date au format ISO string
-    montant_caution: number;
+    date_debut: string; // Date au format ISO string (ex: "YYYY-MM-DD")
+    date_fin: string;   // Date au format ISO string (ex: "YYYY-MM-DD")
+    montant_caution: number; // Ou 'string' si ton backend sérialise Decimal en string
     mois_caution: number;
-    type_paiement: 'journalier' | 'hebdomadaire' | 'mensuel';
-    cree_le: string;
-    locataire?: Utilisateur; // Peut être inclus si ton API le joint
-    chambre?: Chambre; // Peut être inclus si ton API le joint
+    description?: string; // Ajouté
+    mode_paiement?: string; // Ajouté
+    periodicite: 'journalier' | 'hebdomadaire' | 'mensuel'; // Renommé et type mis à jour
+    statut: 'actif' | 'resilié'; // Ajouté
+    cree_le: string; // Date au format ISO string
+    locataire?: Utilisateur; // Doit être présent si joinedload est utilisé
+    chambre?: Chambre; // Doit être présent si joinedload est utilisé
 }
 
 export interface Paiement {

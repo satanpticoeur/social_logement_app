@@ -4,6 +4,7 @@ import {HomePage} from './pages/HomePage';
 import {UserListPage} from './pages/UserListPage';
 import {RoomListPage} from "@/pages/RoomListPage.tsx";
 import PaymentDashboardPage from "@/pages/PaymentDashboardPage.tsx";
+import ContractListPage from "@/pages/ContractListPage.tsx";
 
 function App() {
     return (
@@ -17,6 +18,7 @@ function App() {
                         <Route path="/users" element={<UserListPage/>}/>
                         <Route path="/rooms" element={<RoomListPage/>}/>
                         <Route path="/payments" element={<PaymentDashboardPage />} />
+                        <Route path="/contracts" element={<ContractListPage />} />
                         {/*<Route path="/dashboard" element={<DashboardPage/>}/>*/}
                         {/*<Route path="/houses" element={<HousesPage/>}/>*/}
                         <Route path="*"

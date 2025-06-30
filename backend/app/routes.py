@@ -95,12 +95,14 @@ def serialize_contrat(contrat):
         "chambre_id": contrat.chambre_id,
         "date_debut": contrat.date_debut.isoformat() if contrat.date_debut else None,
         "date_fin": contrat.date_fin.isoformat() if contrat.date_fin else None,
-        "montant_caution": str(contrat.montant_caution) if contrat.montant_caution is not None else None,
-        # Convertir Decimal en str
+        "montant_caution": str(contrat.montant_caution) if contrat.montant_caution is not None else None, # Convertir Decimal en str
         "mois_caution": contrat.mois_caution,
-        "mode_paiement": contrat.mode_paiement,
+        "description": contrat.description, # Nouveau champ
+        "mode_paiement": contrat.mode_paiement, # Nouveau champ
+        "periodicite": contrat.periodicite, # Nouveau champ
+        "statut": contrat.statut, # Nouveau champ
         "cree_le": contrat.cree_le.isoformat() if contrat.cree_le else None,
-        # Inclure le locataire et la chambre si joints
+        # Inclure les relations chargées par joinedload
         "locataire": serialize_utilisateur(contrat.locataire) if hasattr(contrat, 'locataire') else None,
         "chambre": serialize_chambre(contrat.chambre) if hasattr(contrat, 'chambre') else None
     }
@@ -428,13 +430,29 @@ def create_contrat():
 
 @api_bp.route('/contrats', methods=['GET'])
 def get_contrats():
-    contrats = Contrat.query.all()
+    query = Contrat.query.options(
+        db.joinedload(Contrat.locataire),  # Charge les données du locataire
+        db.joinedload(Contrat.chambre).joinedload(Chambre.maison).joinedload(Maison.proprietaire)
+        # Charge la chambre et ses relations imbriquées
+    )
+
+    # Ici, tu peux ajouter des filtres si tu en as besoin, par exemple par locataire_id, statut, etc.
+    # Exemple de filtre:
+    statut_filter = request.args.get('statut')
+    if statut_filter:
+        query = query.filter_by(statut=statut_filter)
+
+    contrats = query.all()
     return jsonify([serialize_contrat(c) for c in contrats]), 200
 
 
 @api_bp.route('/contrats/<int:contrat_id>', methods=['GET'])
 def get_contrat(contrat_id):
-    contrat = Contrat.query.get_or_404(contrat_id)
+    contrat = Contrat.query.options(
+        db.joinedload(Contrat.locataire),  # Charge les données du locataire
+        db.joinedload(Contrat.chambre).joinedload(Chambre.maison).joinedload(Maison.proprietaire)
+    ).filter_by(id=contrat_id).first_or_404() # Utilise filter_by et first_or_404
+
     return jsonify(serialize_contrat(contrat)), 200
 
 
