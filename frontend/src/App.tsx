@@ -4,12 +4,15 @@ import {HomePage} from './pages/HomePage';
 import {UserListPage} from './pages/UserListPage';
 import {RoomListPage} from "@/pages/RoomListPage.tsx";
 import PaymentDashboardPage from "@/pages/PaymentDashboardPage.tsx";
-import ContractListPage from "@/pages/ContractListPage.tsx";
+import ContractListPage from "@/pages/contract/ContractListPage.tsx";
+import ContractDetailPage from "@/pages/contract/ContractDetailPage.tsx";
+import ContractEditPage from "@/pages/contract/ContractEditPage.tsx";
+import ContractCreatePage from "@/pages/contract/ContractCreatePage.tsx";
 
 function App() {
     return (
         <Router>
-            <div className="">
+            <div>
                 <Navbar/>
 
                 <main className="container mx-auto p-4">
@@ -19,6 +22,9 @@ function App() {
                         <Route path="/rooms" element={<RoomListPage/>}/>
                         <Route path="/payments" element={<PaymentDashboardPage />} />
                         <Route path="/contracts" element={<ContractListPage />} />
+                        <Route path="/contracts/:id" element={<ContractDetailPage />} />
+                        <Route path="/contracts/new" element={<ContractCreatePage />} />
+                        <Route path="/contracts/:id/edit" element={<ContractEditPage />} />
                         {/*<Route path="/dashboard" element={<DashboardPage/>}/>*/}
                         {/*<Route path="/houses" element={<HousesPage/>}/>*/}
                         <Route path="*"

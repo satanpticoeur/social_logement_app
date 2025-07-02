@@ -44,27 +44,36 @@ export interface Chambre {
     medias?: Media[]; // Peut être inclus si ton API le joint
 }
 
+// frontend/src/types/common.ts
+
+// ... (autres interfaces) ...
+
 export interface Contrat {
     id: number;
-    locataire_id: number;
     chambre_id: number;
-    date_debut: string; // Date au format ISO string (ex: "YYYY-MM-DD")
-    date_fin: string;   // Date au format ISO string (ex: "YYYY-MM-DD")
-    montant_caution: number; // Ou 'string' si ton backend sérialise Decimal en string
+    locataire_id: number;
+    date_debut: string;
+    date_fin: string;
+    description: string | null;
+    montant_caution: string; // Ou number si tu gères la conversion côté backend
     mois_caution: number;
-    description?: string; // Ajouté
-    mode_paiement?: string; // Ajouté
-    periodicite: 'journalier' | 'hebdomadaire' | 'mensuel'; // Renommé et type mis à jour
-    statut: 'actif' | 'resilié'; // Ajouté
-    cree_le: string; // Date au format ISO string
-    locataire?: Utilisateur; // Doit être présent si joinedload est utilisé
-    chambre?: Chambre; // Doit être présent si joinedload est utilisé
+    periodicite: string;
+    mode_paiement: string;
+    statut: string;
+    cree_le: string;
+    chambre?: Chambre; // Optionnel si non toujours inclus
+    locataire?: Utilisateur; // Optionnel si non toujours inclus
+    total_expected_amount?: number; // <-- AJOUTE CETTE LIGNE
+    total_paid_amount?: number;     // <-- AJOUTE CETTE LIGNE
+    remaining_balance?: number;     // <-- AJOUTE CETTE LIGNE
 }
+
 
 export interface Paiement {
     id: number;
     contrat_id: number;
     montant: number;
+    date_echeance: string;
     date_paiement: string; // Date au format ISO string
     statut: 'payé' | 'impayé' | 'partiel';
     cree_le: string;
@@ -92,4 +101,12 @@ export interface Probleme {
     resolu: boolean;
     cree_le: string;
     contrat?: Contrat;
+}
+
+// type ErrorResponse
+
+export interface ErrorResponse {
+    status: number;
+    message: string;
+    details?: string; // Optionnel pour des informations supplémentaires
 }

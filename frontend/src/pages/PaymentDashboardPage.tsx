@@ -19,7 +19,6 @@ const PaymentDashboardPage: React.FC = () => {
                 return response.json();
             })
             .then((data: Paiement[]) => {
-                console.log("Paiements récupérés:", data);
                 setPaiements(data);
                 setLoading(false);
             })

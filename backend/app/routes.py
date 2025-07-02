@@ -1,6 +1,10 @@
-from datetime import datetime, date  # Ajout de date pour les champs Date
+from datetime import datetime, date  # Assure-toi que datetime et date sont importés
+from datetime import timedelta
+from decimal import Decimal  # Assure-toi que Decimal est importé
 
+from dateutil.relativedelta import relativedelta
 from flask import Blueprint, jsonify, request, abort
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 from app import db
 from app.models import Utilisateur, Maison, Chambre, Contrat, Paiement, RendezVous, Media
@@ -8,15 +12,66 @@ from app.models import Utilisateur, Maison, Chambre, Contrat, Paiement, RendezVo
 api_bp = Blueprint('api', __name__)
 
 
-# --- Routes de test initiales (tu peux les garder ou les retirer si tu n'en as plus besoin) ---
-@api_bp.route('/')
-def index():
-    return jsonify(message="Bienvenue sur l'API Social Logement !"), 200
+# Route d'inscription
+@api_bp.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    nom_utilisateur = data.get('nom_utilisateur')
+    email = data.get('email')
+    mot_de_passe = data.get('mot_de_passe')
+    telephone = data.get('telephone', None)
+    cni = data.get('cni', None)
+    role = data.get('role', 'locataire')  # Rôle par défaut 'locataire' si non spécifié
+
+    if not nom_utilisateur or not email or not mot_de_passe or not role:
+        return jsonify({"message": "Nom d'utilisateur, email, mot de passe et rôle sont requis."}), 400
+
+    if Utilisateur.query.filter_by(nom_utilisateur=nom_utilisateur).first():
+        return jsonify({"message": "Ce nom d'utilisateur existe déjà."}), 409
+    if Utilisateur.query.filter_by(email=email).first():
+        return jsonify({"message": "Cet email est déjà enregistré."}), 409
+    if cni and Utilisateur.query.filter_by(cni=cni).first():
+        return jsonify({"message": "Cette CNI est déjà enregistrée."}), 409
+
+    new_user = Utilisateur(nom_utilisateur=nom_utilisateur, email=email, telephone=telephone, cni=cni, role=role)
+    new_user.set_password(mot_de_passe)  # Hache le mot de passe
+
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+        return jsonify(
+            {"message": "Utilisateur enregistré avec succès.", "user_id": new_user.id, "role": new_user.role}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": f"Erreur lors de l'enregistrement: {str(e)}"}), 500
 
 
-@api_bp.route('/test')
-def test_route():
-    return jsonify(data="Ceci est une route de test de l'API."), 200
+# Route de connexion
+@api_bp.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    mot_de_passe = data.get('mot_de_passe')
+
+    if not email or not mot_de_passe:
+        return jsonify({"message": "Email et mot de passe sont requis."}), 400
+
+    user = Utilisateur.query.filter_by(email=email).first()
+
+    if not user or not user.check_password(mot_de_passe):
+        return jsonify({"message": "Email ou mot de passe incorrect."}), 401
+
+    # Crée un token d'accès qui expire après 24 heures (ajuste la durée selon tes besoins)
+    access_token = create_access_token(identity={"id": user.id, "role": user.role}, expires_delta=timedelta(hours=24))
+    return jsonify(access_token=access_token, role=user.role, user_id=user.id), 200
+
+
+# Exemple de route protégée (pour tester l'authentification JWT)
+@api_bp.route('/protected', methods=['GET'])
+@jwt_required()  # <-- Protège cette route
+def protected_route():
+    current_user = get_jwt_identity()  # Récupère l'identité (id et rôle) stockée dans le token
+    return jsonify(logged_in_as=current_user), 200
 
 
 # --- Fonctions utilitaires de sérialisation (améliorées et nouvelles) ---
@@ -95,12 +150,13 @@ def serialize_contrat(contrat):
         "chambre_id": contrat.chambre_id,
         "date_debut": contrat.date_debut.isoformat() if contrat.date_debut else None,
         "date_fin": contrat.date_fin.isoformat() if contrat.date_fin else None,
-        "montant_caution": str(contrat.montant_caution) if contrat.montant_caution is not None else None, # Convertir Decimal en str
+        "montant_caution": str(contrat.montant_caution) if contrat.montant_caution is not None else None,
+        # Convertir Decimal en str
         "mois_caution": contrat.mois_caution,
-        "description": contrat.description, # Nouveau champ
-        "mode_paiement": contrat.mode_paiement, # Nouveau champ
-        "periodicite": contrat.periodicite, # Nouveau champ
-        "statut": contrat.statut, # Nouveau champ
+        "description": contrat.description,  # Nouveau champ
+        "mode_paiement": contrat.mode_paiement,  # Nouveau champ
+        "periodicite": contrat.periodicite,  # Nouveau champ
+        "statut": contrat.statut,  # Nouveau champ
         "cree_le": contrat.cree_le.isoformat() if contrat.cree_le else None,
         # Inclure les relations chargées par joinedload
         "locataire": serialize_utilisateur(contrat.locataire) if hasattr(contrat, 'locataire') else None,
@@ -447,13 +503,130 @@ def get_contrats():
 
 
 @api_bp.route('/contrats/<int:contrat_id>', methods=['GET'])
-def get_contrat(contrat_id):
-    contrat = Contrat.query.options(
-        db.joinedload(Contrat.locataire),  # Charge les données du locataire
-        db.joinedload(Contrat.chambre).joinedload(Chambre.maison).joinedload(Maison.proprietaire)
-    ).filter_by(id=contrat_id).first_or_404() # Utilise filter_by et first_or_404
+# def get_contrat(contrat_id):
+#     contrat = Contrat.query.options(
+#         db.joinedload(Contrat.locataire),  # Charge les données du locataire
+#         db.joinedload(Contrat.chambre).joinedload(Chambre.maison).joinedload(Maison.proprietaire)
+#     ).filter_by(id=contrat_id).first_or_404()  # Utilise filter_by et first_or_404
+#
+#     return jsonify(serialize_contrat(contrat)), 200
+def get_contract_details(contrat_id):
+    contrat = Contrat.query.get(contrat_id)
+    if not contrat:
+        return jsonify({"message": "Contrat non trouvé."}), 404
 
-    return jsonify(serialize_contrat(contrat)), 200
+    # Calcul du montant total attendu du contrat
+    total_expected_amount = 0.0  # Initialise en float pour être cohérent
+    if contrat.chambre and contrat.chambre.prix and contrat.date_debut and contrat.date_fin:
+        start_date = contrat.date_debut
+        end_date = contrat.date_fin
+
+        delta = relativedelta(end_date, start_date)
+        num_months = delta.years * 12 + delta.months
+        if delta.days > 0:
+            num_months += 1
+
+        total_expected_amount = float(contrat.chambre.prix) * num_months
+    else:
+        total_expected_amount = 0.0
+
+    # Calcul du montant total payé
+    total_paid_amount_decimal = db.session.query(db.func.sum(Paiement.montant)).filter(
+        Paiement.contrat_id == contrat_id,
+        Paiement.statut == 'payé'
+    ).scalar() or 0.0
+
+    # Convertir total_paid_amount_decimal en float avant la soustraction
+    total_paid_amount = float(total_paid_amount_decimal)  # <--- MODIFICATION ICI
+
+    # Calcul du solde restant
+    remaining_balance = total_expected_amount - total_paid_amount
+
+    # Sérialisation du contrat (similaire à ce que tu as déjà)
+    chambre_data = None
+    if contrat.chambre:
+        maison_data = None
+        if contrat.chambre.maison:
+            proprietaire_maison_data = None
+            if contrat.chambre.maison.proprietaire:
+                proprietaire_maison_data = {
+                    "id": contrat.chambre.maison.proprietaire.id,
+                    "nom_utilisateur": contrat.chambre.maison.proprietaire.nom_utilisateur,
+                    "email": contrat.chambre.maison.proprietaire.email,
+                    "telephone": contrat.chambre.maison.proprietaire.telephone,
+                    "cni": contrat.chambre.maison.proprietaire.cni,
+                    "role": contrat.chambre.maison.proprietaire.role,
+                    "cree_le": contrat.chambre.maison.proprietaire.cree_le.isoformat() if contrat.chambre.maison.proprietaire.cree_le else None
+                }
+            maison_data = {
+                "id": contrat.chambre.maison.id,
+                "adresse": contrat.chambre.maison.adresse,
+                "description": contrat.chambre.maison.description,
+                "latitude": str(contrat.chambre.maison.latitude),
+                "longitude": str(contrat.chambre.maison.longitude),
+                "proprietaire_id": contrat.chambre.maison.proprietaire_id,
+                "proprietaire": proprietaire_maison_data,
+                "cree_le": contrat.chambre.maison.cree_le.isoformat() if contrat.chambre.maison.cree_le else None
+            }
+
+        medias_data = []
+        for media in contrat.chambre.medias:
+            medias_data.append({
+                "id": media.id,
+                "chambre_id": media.chambre_id,
+                "url": media.url,
+                "type": media.type,
+                "description": media.description,
+                "cree_le": media.cree_le.isoformat() if media.cree_le else None
+            })
+
+        chambre_data = {
+            "id": contrat.chambre.id,
+            "titre": contrat.chambre.titre,
+            "description": contrat.chambre.description,
+            "prix": str(contrat.chambre.prix),
+            "taille": contrat.chambre.taille,
+            "type": contrat.chambre.type,
+            "meublee": contrat.chambre.meublee,
+            "salle_de_bain": contrat.chambre.salle_de_bain,
+            "disponible": contrat.chambre.disponible,
+            "maison_id": contrat.chambre.maison_id,
+            "maison": maison_data,
+            "medias": medias_data,
+            "cree_le": contrat.chambre.cree_le.isoformat() if contrat.chambre.cree_le else None
+        }
+
+    locataire_data = None
+    if contrat.locataire:
+        locataire_data = {
+            "id": contrat.locataire.id,
+            "nom_utilisateur": contrat.locataire.nom_utilisateur,
+            "email": contrat.locataire.email,
+            "telephone": contrat.locataire.telephone,
+            "cni": contrat.locataire.cni,
+            "role": contrat.locataire.role,
+            "cree_le": contrat.locataire.cree_le.isoformat() if contrat.locataire.cree_le else None
+        }
+
+    return jsonify({
+        "id": contrat.id,
+        "chambre_id": contrat.chambre_id,
+        "locataire_id": contrat.locataire_id,
+        "date_debut": contrat.date_debut.isoformat() if contrat.date_debut else None,
+        "date_fin": contrat.date_fin.isoformat() if contrat.date_fin else None,
+        "description": contrat.description,
+        "montant_caution": str(contrat.montant_caution),
+        "mois_caution": contrat.mois_caution,
+        "periodicite": contrat.periodicite,
+        "mode_paiement": contrat.mode_paiement,
+        "statut": contrat.statut,
+        "cree_le": contrat.cree_le.isoformat() if contrat.cree_le else None,
+        "chambre": chambre_data,
+        "locataire": locataire_data,
+        "total_expected_amount": total_expected_amount,  # <-- AJOUTE CETTE LIGNE
+        "total_paid_amount": total_paid_amount,  # <-- AJOUTE CETTE LIGNE
+        "remaining_balance": remaining_balance  # <-- AJOUTE CETTE LIGNE
+    }), 200
 
 
 @api_bp.route('/contrats/<int:contrat_id>', methods=['PUT'])
@@ -513,28 +686,64 @@ def delete_contrat(contrat_id):
 @api_bp.route('/paiements', methods=['POST'])
 def create_paiement():
     data = request.get_json()
-    if not data or not all(k in data for k in ['contrat_id', 'montant', 'statut', 'date_echeance']):
-        abort(400, description="contrat_id, montant, statut, et date_echeance sont requis.")
+    if not data:
+        return jsonify({"message": "Données JSON requises"}), 400
 
-    if not Contrat.query.get(data['contrat_id']):
-        abort(404, description="Le contrat spécifié n'existe pas.")
+    contrat_id = data.get('contrat_id')
+    montant = data.get('montant')
+    date_echeance_str = data.get('date_echeance')  # <--- RÉCUPÈRE LA NOUVELLE DATE D'ÉCHÉANCE
+    date_paiement_str = data.get('date_paiement')  # Peut être null si impayé
+    statut = data.get('statut', 'impayé')  # Statut par défaut 'impayé' si date_paiement est null
+
+    # Mettre à jour la validation des champs obligatoires
+    if not all([contrat_id, montant, date_echeance_str]):  # <--- date_echeance_str devient obligatoire
+        return jsonify({"message": "Les champs 'contrat_id', 'montant' et 'date_echeance' sont obligatoires."}), 400
 
     try:
-        date_echeance = date.fromisoformat(data['date_echeance'])
-        date_paiement = date.fromisoformat(data['date_paiement']) if data.get('date_paiement') else None
-    except ValueError:
-        abort(400, description="Format de date invalide. Utilisez YYYY-MM-DD.")
+        contrat = Contrat.query.get(contrat_id)
+        if not contrat:
+            return jsonify({"message": "Contrat non trouvé."}), 404
 
-    new_paiement = Paiement(
-        contrat_id=data['contrat_id'],
-        montant=data['montant'],
-        statut=data['statut'],
-        date_echeance=date_echeance,
-        date_paiement=date_paiement
-    )
-    db.session.add(new_paiement)
-    db.session.commit()
-    return jsonify(serialize_paiement(new_paiement)), 201
+        # Convertir les dates
+        date_echeance = datetime.strptime(date_echeance_str, '%Y-%m-%d').date()  # Stocke juste la date
+        date_paiement = None
+        if date_paiement_str:  # La date de paiement est optionnelle
+            date_paiement = datetime.strptime(date_paiement_str,
+                                              '%Y-%m-%d')  # Peut être datetime ou juste date selon ta précision
+
+        # Ajuster le statut si date_paiement est fourni
+        if date_paiement and statut == 'impayé':  # Si une date de paiement est donnée, mais le statut est impayé, force à payé.
+            statut = 'payé'
+
+        new_paiement = Paiement(
+            contrat_id=contrat_id,
+            montant=montant,
+            date_echeance=date_echeance,  # <--- AJOUTE LA DATE D'ÉCHÉANCE ICI
+            date_paiement=date_paiement,
+            statut=statut
+        )
+        db.session.add(new_paiement)
+        db.session.commit()
+
+        # Mettre à jour la réponse JSON
+        return jsonify({
+            "message": "Paiement créé avec succès",
+            "paiement": {
+                "id": new_paiement.id,
+                "contrat_id": new_paiement.contrat_id,
+                "montant": float(new_paiement.montant),
+                "date_echeance": new_paiement.date_echeance.isoformat(),  # <--- AJOUTE À LA RÉPONSE
+                "date_paiement": new_paiement.date_paiement.isoformat() if new_paiement.date_paiement else None,
+                "statut": new_paiement.statut,
+                "cree_le": new_paiement.cree_le.isoformat()
+            }
+        }), 201
+
+    except ValueError as e:
+        return jsonify({"message": f"Format de date invalide. Utilisez YYYY-MM-DD. Détails: {str(e)}"}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": f"Erreur interne du serveur: {str(e)}"}), 500
 
 
 @api_bp.route('/paiements', methods=['GET'])
@@ -566,45 +775,97 @@ def get_paiement(paiement_id):
 
 @api_bp.route('/paiements/<int:paiement_id>', methods=['PUT'])
 def update_paiement(paiement_id):
-    paiement = Paiement.query.get_or_404(paiement_id)
+    paiement = Paiement.query.get(paiement_id)
+    if not paiement:
+        return jsonify({"message": "Paiement non trouvé."}), 404
+
     data = request.get_json()
 
-    if not data:
-        abort(400, description="Données de mise à jour requises.")
+    # Mise à jour du montant
+    if 'montant' in data:
+        try:
+            # Convertir en Decimal pour correspondre au type de la base de données
+            paiement.montant = Decimal(str(data['montant']))
+        except Exception as e:
+            return jsonify({"message": f"Montant invalide: {e}"}), 400
 
-    if 'contrat_id' in data and data['contrat_id'] != paiement.contrat_id:
-        if not Contrat.query.get(data['contrat_id']):
-            abort(404, description="Le nouveau contrat spécifié n'existe pas.")
-        paiement.contrat_id = data['contrat_id']
-
-    paiement.montant = data.get('montant', paiement.montant)
-    paiement.statut = data.get('statut', paiement.statut)
-
+    # Mise à jour de la date d'échéance
     if 'date_echeance' in data:
         try:
-            paiement.date_echeance = date.fromisoformat(data['date_echeance'])
+            paiement.date_echeance = datetime.strptime(data['date_echeance'], '%Y-%m-%d').date()
         except ValueError:
-            abort(400, description="Format de date d'échéance invalide. Utilisez YYYY-MM-DD.")
+            return jsonify({"message": "Format de date d'échéance invalide. Utilisez YYYY-MM-DD."}), 400
+
+    # Mise à jour de la date de paiement (peut être null)
     if 'date_paiement' in data:
-        try:
-            paiement.date_paiement = date.fromisoformat(data['date_paiement']) if data['date_paiement'] else None
-        except ValueError:
-            abort(400, description="Format de date de paiement invalide. Utilisez YYYY-MM-DD ou null.")
+        if data['date_paiement'] is None:
+            paiement.date_paiement = None
+        else:
+            try:
+                paiement.date_paiement = datetime.strptime(data['date_paiement'], '%Y-%m-%d').date()
+            except ValueError:
+                return jsonify({"message": "Format de date de paiement invalide. Utilisez YYYY-MM-DD ou null."}), 400
+
+    # Mise à jour du statut (déduit si date_paiement est fournie ou non)
+    # Si date_paiement est fournie, le statut devient 'payé', sinon 'impayé'
+    # On peut aussi permettre de le définir explicitement si besoin, mais la déduction est plus robuste.
+    if 'statut' in data:
+        paiement.statut = data['statut']
+    else:  # Déduire le statut si non fourni explicitement
+        paiement.statut = 'payé' if paiement.date_paiement else 'impayé'
 
     try:
         db.session.commit()
-        return jsonify(serialize_paiement(paiement)), 200
+        return jsonify({
+            "id": paiement.id,
+            "contrat_id": paiement.contrat_id,
+            "montant": str(paiement.montant),
+            "date_echeance": paiement.date_echeance.isoformat(),
+            "date_paiement": paiement.date_paiement.isoformat() if paiement.date_paiement else None,
+            "statut": paiement.statut,
+            "cree_le": paiement.cree_le.isoformat()
+        }), 200
     except Exception as e:
         db.session.rollback()
-        abort(500, description=f"Erreur lors de la mise à jour du paiement: {str(e)}")
+        return jsonify({"message": f"Erreur lors de la mise à jour du paiement: {str(e)}"}), 500
 
 
 @api_bp.route('/paiements/<int:paiement_id>', methods=['DELETE'])
 def delete_paiement(paiement_id):
-    paiement = Paiement.query.get_or_404(paiement_id)
-    db.session.delete(paiement)
-    db.session.commit()
-    return jsonify(message="Paiement supprimé avec succès"), 204
+    paiement = Paiement.query.get(paiement_id)
+    if not paiement:
+        return jsonify({"message": "Paiement non trouvé."}), 404
+
+    try:
+        db.session.delete(paiement)
+        db.session.commit()
+        return jsonify({"message": "Paiement supprimé avec succès."}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": f"Erreur lors de la suppression du paiement: {str(e)}"}), 500
+
+
+@api_bp.route('/contrats/<int:contrat_id>/paiements', methods=['GET'])
+def get_paiements_by_contrat(contrat_id):
+    contrat = Contrat.query.get(contrat_id)
+    if not contrat:
+        return jsonify({"message": "Contrat non trouvé."}), 404
+
+    paiements = Paiement.query.filter_by(contrat_id=contrat_id).order_by(
+        Paiement.date_echeance.desc()).all()  # Trie par date d'échéance
+
+    paiements_data = []
+    for paiement in paiements:
+        paiements_data.append({
+            "id": paiement.id,
+            "contrat_id": paiement.contrat_id,
+            "montant": float(paiement.montant),
+            "date_echeance": paiement.date_echeance.isoformat(),  # <--- AJOUTE À LA RÉPONSE GET
+            "date_paiement": paiement.date_paiement.isoformat() if paiement.date_paiement else None,
+            "statut": paiement.statut,
+            "cree_le": paiement.cree_le.isoformat()
+        })
+    return jsonify(paiements_data), 200
 
 
 # --- CRUD pour les Rendez-vous (User Story 8) ---
@@ -633,19 +894,19 @@ def create_rendezvous():
     )
     db.session.add(new_rendezvous)
     db.session.commit()
-    return jsonify(serialize_rendezvous(new_rendezvous)), 201
+    return jsonify(serialize_rendez_vous(new_rendezvous)), 201
 
 
 @api_bp.route('/rendezvous', methods=['GET'])
 def get_rendezvous():
     rendezvous = RendezVous.query.all()
-    return jsonify([serialize_rendezvous(r) for r in rendezvous]), 200
+    return jsonify([serialize_rendez_vous(r) for r in rendezvous]), 200
 
 
 @api_bp.route('/rendezvous/<int:rendezvous_id>', methods=['GET'])
 def get_single_rendezvous(rendezvous_id):
     rendezvous = RendezVous.query.get_or_404(rendezvous_id)
-    return jsonify(serialize_rendezvous(rendezvous)), 200
+    return jsonify(serialize_rendez_vous(rendezvous)), 200
 
 
 @api_bp.route('/rendezvous/<int:rendezvous_id>', methods=['PUT'])
@@ -676,7 +937,7 @@ def update_rendezvous(rendezvous_id):
 
     try:
         db.session.commit()
-        return jsonify(serialize_rendezvous(rendezvous)), 200
+        return jsonify(serialize_rendez_vous(rendezvous)), 200
     except Exception as e:
         db.session.rollback()
         abort(500, description=f"Erreur lors de la mise à jour du rendez-vous: {str(e)}")
