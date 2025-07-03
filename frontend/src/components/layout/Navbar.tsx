@@ -26,6 +26,8 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import {useAuth} from "@/context/AuthContext.tsx";
+import {Link} from "react-router-dom";
 
 // Navigation links with icons for desktop icon-only navigation
 const navigationLinks = [
@@ -39,7 +41,7 @@ const navigationLinks = [
 ]
 
 export function Navbar() {
-    // const id = useId()
+    const {isAuthenticated, isProprietaire} = useAuth();
 
     return (
         <header className="border-b px-4 md:px-6">
@@ -109,45 +111,62 @@ export function Navbar() {
                     </Popover>
                     <div className="flex items-center gap-6">
                         {/* Logo */}
-                        <a href="/" className="text-primary hover:text-primary/90">
+                        <Link to="/" className="text-primary hover:text-primary/90">
                             <Logo/>
-                        </a>
+                        </Link>
+
+                        {isAuthenticated &&
+                            <>
+                                {isProprietaire && <Link to="/contracts" className="hover:underline">Contrats</Link>}
+                                {isProprietaire && <Link to="/clients" className="hover:underline">Clients</Link>}
+                                <NavigationMenu className="hidden md:flex">
+                                    <NavigationMenuList className="gap-2">
+                                        <TooltipProvider>
+                                            {navigationLinks.map((link) => (
+                                                <NavigationMenuItem key={link.label}>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <NavigationMenuLink
+                                                                href={link.href}
+                                                                className="flex size-8 items-center justify-center p-1.5"
+                                                            >
+                                                                <link.icon size={20} aria-hidden="true"/>
+                                                                <span className="sr-only">{link.label}</span>
+                                                            </NavigationMenuLink>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent
+                                                            side="bottom"
+                                                            className="px-2 py-1 text-xs"
+                                                        >
+                                                            <p>{link.label}</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </NavigationMenuItem>
+                                            ))}
+                                        </TooltipProvider>
+                                    </NavigationMenuList>
+                                </NavigationMenu>
+                            </>
+                        }
+
+
                         {/* Desktop navigation - icon only */}
-                        <NavigationMenu className="hidden md:flex">
-                            <NavigationMenuList className="gap-2">
-                                <TooltipProvider>
-                                    {navigationLinks.map((link) => (
-                                        <NavigationMenuItem key={link.label}>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <NavigationMenuLink
-                                                        href={link.href}
-                                                        className="flex size-8 items-center justify-center p-1.5"
-                                                    >
-                                                        <link.icon size={20} aria-hidden="true"/>
-                                                        <span className="sr-only">{link.label}</span>
-                                                    </NavigationMenuLink>
-                                                </TooltipTrigger>
-                                                <TooltipContent
-                                                    side="bottom"
-                                                    className="px-2 py-1 text-xs"
-                                                >
-                                                    <p>{link.label}</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </NavigationMenuItem>
-                                    ))}
-                                </TooltipProvider>
-                            </NavigationMenuList>
-                        </NavigationMenu>
                     </div>
                 </div>
+
                 {/* Right side */}
                 <div className="flex items-center gap-2">
-                    {/* Theme toggle */}
+                    {/*si pas connecté */}
+
+                    {!isAuthenticated && <>
+                        <Link to="/login" className="hover:underline">Connexion</Link>
+                        <Link to="/register" className="hover:underline">Inscription</Link>
+                    </>
+                    }
                     <ThemeToggle/>
-                    {/* User menu */}
-                    <UserMenu/>
+                    {
+                        isAuthenticated && <UserMenu/>
+                    }
                 </div>
             </div>
         </header>

@@ -1,10 +1,12 @@
+import json
 from datetime import datetime, date  # Assure-toi que datetime et date sont importés
 from datetime import timedelta
 from decimal import Decimal  # Assure-toi que Decimal est importé
 
 from dateutil.relativedelta import relativedelta
 from flask import Blueprint, jsonify, request, abort
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, set_access_cookies, \
+    unset_jwt_cookies
 
 from app import db
 from app.models import Utilisateur, Maison, Chambre, Contrat, Paiement, RendezVous, Media
@@ -53,26 +55,96 @@ def login():
     email = data.get('email')
     mot_de_passe = data.get('mot_de_passe')
 
+    print(f"DEBUG: [LOGIN] Request received for email: {email}")
     if not email or not mot_de_passe:
+        print("DEBUG: [LOGIN] Missing email or password. Returning 400.")
         return jsonify({"message": "Email et mot de passe sont requis."}), 400
 
     user = Utilisateur.query.filter_by(email=email).first()
+    print(f"DEBUG: [LOGIN] User found: {user is not None}")
 
-    if not user or not user.check_password(mot_de_passe):
+    if not user:
+        print(f"DEBUG: [LOGIN] User not found for email: {email}. Returning 401.")
         return jsonify({"message": "Email ou mot de passe incorrect."}), 401
 
-    # Crée un token d'accès qui expire après 24 heures (ajuste la durée selon tes besoins)
-    access_token = create_access_token(identity={"id": user.id, "role": user.role}, expires_delta=timedelta(hours=24))
-    return jsonify(access_token=access_token, role=user.role, user_id=user.id), 200
+    if not user.check_password(mot_de_passe):
+        print(f"DEBUG: [LOGIN] Password mismatch for user: {email}. Returning 401.")
+        return jsonify({"message": "Email ou mot de passe incorrect."}), 401
+
+    print(f"DEBUG: [LOGIN] User {email} authenticated successfully. Proceeding to token generation.")
+
+    # >>> LA MODIFICATION CRUCIALE EST ICI <<<
+    # Sérialisez l'identité en JSON string avant de la passer à create_access_token
+    user_identity_data = {"id": user.id, "role": user.role, "email": user.email}
+    json_identity_string = json.dumps(user_identity_data)  # Convertit le dict en string JSON
+
+    try:
+        access_token = create_access_token(
+            identity=json_identity_string,  # Passe la string JSON comme identité
+            expires_delta=timedelta(hours=24)
+        )
+        print(f"DEBUG: [LOGIN] Access Token generated (first 30 chars): {access_token[:30]}...")
+    except Exception as e:
+        print(f"ERROR: [LOGIN] Failed to create access token: {e}")
+        return jsonify({"message": "Internal server error during token creation."}), 500
+
+    response_data = {
+        "message": "Connexion réussie.",
+        "role": user.role,
+        "user_id": user.id,
+        "email": user.email
+    }
+
+    response = jsonify(response_data)
+    print(f"DEBUG: [LOGIN] Flask response object created.")
+
+    try:
+        set_access_cookies(response, access_token)
+        print(f"DEBUG: [LOGIN] set_access_cookies called successfully.")
+
+        # Vérification des headers pour débogage
+        print(f"DEBUG: [LOGIN] Response headers after set_access_cookies: {response.headers}")
+        if 'Set-Cookie' in str(response.headers):
+            print("DEBUG: [LOGIN] 'Set-Cookie' header IS present in response object.")
+        else:
+            print("WARNING: [LOGIN] 'Set-Cookie' header IS NOT present in response object after set_access_cookies.")
+
+    except Exception as e:
+        print(f"ERROR: [LOGIN] Failed to set access cookies: {e}")
+        return jsonify({"message": "Internal server error during cookie setting."}), 500
+
+    print(f"DEBUG: [LOGIN] Returning response with status 200.")
+    return response, 200
 
 
-# Exemple de route protégée (pour tester l'authentification JWT)
-@api_bp.route('/protected', methods=['GET'])
-@jwt_required()  # <-- Protège cette route
-def protected_route():
-    current_user = get_jwt_identity()  # Récupère l'identité (id et rôle) stockée dans le token
-    return jsonify(logged_in_as=current_user), 200
+# ... (votre route logout) ...
 
+# ... (votre route protected) ...
+# IMPORTANT : Dans vos routes protégées, vous devrez dé-sérialiser l'identité :
+# @api_bp.route('/protected', methods=['GET'])
+# @jwt_required()
+# def protected_get_route():
+#     json_identity_string = get_jwt_identity()
+#     current_user_data = json.loads(json_identity_string) # Dé-sérialiser la string JSON en dict
+#     # Maintenant current_user_data est un dictionnaire, ex: current_user_data['id']
+#     return jsonify(message=f"Ceci est une route protégée pour {current_user_data['email']}."), 200
+
+# Nouvelle route de déconnexion
+@api_bp.route('/logout', methods=['POST'])
+def logout():
+    response = jsonify({"message": "Déconnexion réussie."})
+    unset_jwt_cookies(response)  # Supprime le cookie du token
+    return response, 200
+
+
+# backend/app/routes.py
+@api_bp.route('/protected', methods=['GET']) # Assurez-vous que c'est bien GET si c'est pour checkAuthStatus
+@jwt_required()
+def protected_get_route():
+    json_identity_string = get_jwt_identity()
+    current_user_data = json.loads(json_identity_string)
+    # Assurez-vous que vous retournez les informations user_id, role, email ici
+    return jsonify(logged_in_as=current_user_data, user_id=current_user_data['id'], role=current_user_data['role'], email=current_user_data['email']), 200
 
 # --- Fonctions utilitaires de sérialisation (améliorées et nouvelles) ---
 
