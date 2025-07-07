@@ -37,7 +37,6 @@ const RegisterPage: React.FC = () => {
                 navigate('/login'); // Redirige si l'inscription a réussi
             }
         } catch (error) {
-            // L'erreur est déjà toastée dans le contexte
             console.error("Register component error:", error); // Log d'erreur pour le débogage
         } finally {
             setLoading(false);

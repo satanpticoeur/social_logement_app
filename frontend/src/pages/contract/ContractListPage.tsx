@@ -17,7 +17,10 @@ const ContractListPage: React.FC = () => {
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     useEffect(() => {
-        fetch(`${BACKEND_URL}/api/contrats`) // Remplace par l'endpoint correct si différent
+        fetch(`${BACKEND_URL}/api/contrats`, {
+            method: 'GET',
+            credentials: 'include',
+        })
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`Erreur HTTP: ${response.status}`);
@@ -43,9 +46,9 @@ const ContractListPage: React.FC = () => {
         <div className="p-4 bg-background text-foreground  max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-foreground">Liste des Contrats</h1>
-                <Link to="/contracts/new">
+                <Link to="/contracts/new/">
                     <Button>
-                        <PlusCircleIcon className="mr-2 h-4 w-4" />
+                        <PlusCircleIcon className="mr-2 h-4 w-4"/>
                         Créer un nouveau contrat
                     </Button>
                 </Link>

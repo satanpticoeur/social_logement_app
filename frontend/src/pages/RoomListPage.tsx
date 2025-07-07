@@ -1,25 +1,28 @@
 import React, {useState, useEffect} from 'react';
-import type {Chambre} from '../types/common';
-import {Link} from 'react-router-dom';
-import {Button} from '@/components/ui/button';
+import type {ChambreDetails} from '../types/common';
+import RoomDetailsDialog from "@/components/room/RoomDetailsDialog.tsx";
 
 export const RoomListPage: React.FC = () => {
-    const [chambres, setChambres] = useState<Chambre[]>([]);
+    const [chambres, setChambres] = useState<ChambreDetails[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     useEffect(() => {
-        fetch(`${BACKEND_URL}/api/chambres`)
+        fetch(`${BACKEND_URL}/api/chambres`, {
+            method: 'GET',
+            credentials: 'include',
+        })
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`Erreur HTTP: ${response.status}`);
                 }
                 return response.json();
             })
-            .then((data: Chambre[]) => {
+            .then((data: ChambreDetails[]) => {
                 setChambres(data);
+                console.log("Chambres récupérées avec succès:", data);
                 setLoading(false);
             })
             .catch((err: Error) => {
@@ -54,7 +57,7 @@ export const RoomListPage: React.FC = () => {
                             )}
                             <div className="p-5">
                                 <h2 className="text-xl font-semibold mb-2 text-foreground">{chambre.titre}</h2>
-                                <p className="text-muted-foreground mb-1"> {/* Utilise text-muted-foreground */}
+                                <p className="text-muted-foreground mb-1">
                                     <span className="font-medium">Prix :</span> {chambre.prix} XOF
                                     / {chambre.type === 'simple' ? 'mois' : 'mois'}
                                 </p>
@@ -78,16 +81,14 @@ export const RoomListPage: React.FC = () => {
                                     {chambre.salle_de_bain && (
                                         <span
                                             className="inline-flex items-center rounded-md bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground ring-1 ring-inset ring-secondary">SDB</span>
-                                        )}
+                                    )}
                                     <span
                                         className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary">
                                         {chambre.type}
-                    </span>
+                                    </span>
                                 </div>
 
-                                <Link to={`/chambres/${chambre.id}`}>
-                                    <Button className="w-full mt-4">Voir les détails</Button>
-                                </Link>
+                                <RoomDetailsDialog chambre={chambre}/>
                             </div>
                         </div>
                     ))}

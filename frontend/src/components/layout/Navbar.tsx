@@ -1,11 +1,11 @@
 import {
     BookUserIcon,
     DoorOpenIcon, HandCoinsIcon,
-    HouseIcon, LayoutDashboardIcon, UsersIcon,
+    HouseIcon, LayoutDashboardIcon,
 } from "lucide-react"
 
 import Logo from "@/components/logo"
-import {ThemeToggle} from "@/components/theme-toggle"
+import {ThemeToggle} from "@/components/theme/theme-toggle.tsx"
 import UserMenu from "@/components/user-menu"
 import {Button} from "@/components/ui/button"
 import {
@@ -31,8 +31,7 @@ import {Link} from "react-router-dom";
 
 // Navigation links with icons for desktop icon-only navigation
 const navigationLinks = [
-    {href: "/dashboard", label: "dashboard", icon: LayoutDashboardIcon, active: true},
-    {href: "/users", label: "utilisateurs", icon: UsersIcon},
+    {href: "/owner/dashboard", label: "dashboard", icon: LayoutDashboardIcon},
     {href: "/houses", label: "maisons", icon: HouseIcon},
     {href: "/rooms", label: "chambres", icon: DoorOpenIcon},
     {href: "/payments", label: "paiements", icon: HandCoinsIcon},
@@ -93,7 +92,6 @@ export function Navbar() {
                                                 <NavigationMenuLink
                                                     href={link.href}
                                                     className="flex-row items-center gap-2 py-1.5"
-                                                    active={link.active}
                                                 >
                                                     <Icon
                                                         size={16}
@@ -123,6 +121,7 @@ export function Navbar() {
                                     <NavigationMenuList className="gap-2">
                                         <TooltipProvider>
                                             {navigationLinks.map((link) => (
+                                                link.label === "dashboard" && !isProprietaire ? null :
                                                 <NavigationMenuItem key={link.label}>
                                                     <Tooltip>
                                                         <TooltipTrigger asChild>

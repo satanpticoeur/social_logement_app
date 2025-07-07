@@ -44,6 +44,35 @@ export interface Chambre {
     medias?: Media[]; // Peut être inclus si ton API le joint
 }
 
+export interface ChambreDetails {
+    maison?: Maison;
+    id: number;
+    maison_id: number;
+    titre: string;
+    description: string | null;
+    taille: string | null;
+    type: string | null;
+    meublee: boolean;
+    salle_de_bain: boolean;
+    prix: number;
+    disponible: boolean;
+    // Ajoutez ici d'autres champs de détails si votre API les fournit (ex: date de création, etc.)
+    adresse_maison: string; // Utile pour l'affichage des détails
+    ville_maison?: string; // Utile pour l'affichage des détails
+    contrats_actifs: Array<{
+        contrat_id: number;
+        locataire_nom_utilisateur: string;
+        date_debut: string;
+        date_fin: string;
+        statut: string;
+    }>;
+    medias?: Array<{
+        id: number;
+        url: string;
+        type: string; // Ex: 'image', 'video', etc.
+        description?: string;
+    }>;
+}
 // frontend/src/types/common.ts
 
 // ... (autres interfaces) ...

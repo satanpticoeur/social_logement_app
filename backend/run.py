@@ -21,6 +21,4 @@ def make_shell_context():
 #     click.echo('Database seeded!')
 
 if __name__ == '__main__':
-    app.run(
-        debug=True
-    )
+    app.run(debug=True)  # Lance l'application Flask en mode debug

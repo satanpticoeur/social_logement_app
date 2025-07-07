@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import type {Utilisateur} from '../types/common'; // Assure-toi que le chemin est correct
+import type {Utilisateur} from '../../types/common.ts'; // Assure-toi que le chemin est correct
 
 export const UserListPage: React.FC = () => {
     const [utilisateurs, setUtilisateurs] = useState<Utilisateur[]>([]);
