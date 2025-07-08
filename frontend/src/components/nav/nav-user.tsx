@@ -1,5 +1,3 @@
-import {IconDotsVertical, IconLogout, IconNotification, IconUserCircle,} from "@tabler/icons-react"
-
 import {Avatar, AvatarFallback,} from "@/components/ui/avatar.tsx"
 import {
     DropdownMenu,
@@ -12,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu.tsx"
 import {SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,} from "@/components/ui/sidebar.tsx"
 import {useAuth} from "@/context/AuthContext.tsx";
+import {BellIcon, EllipsisVerticalIcon, LogOutIcon, UserCircleIcon} from "lucide-react";
 
 
 export function NavUser() {
@@ -44,7 +43,7 @@ export function NavUser() {
                   {user.email}
                 </span>
                             </div>
-                            <IconDotsVertical className="ml-auto size-4"/>
+                            <EllipsisVerticalIcon className="ml-auto size-4"/>
                         </SidebarMenuButton>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
@@ -72,17 +71,17 @@ export function NavUser() {
                         <DropdownMenuSeparator/>
                         <DropdownMenuGroup>
                             <DropdownMenuItem>
-                                <IconUserCircle/>
+                                <UserCircleIcon/>
                                 Profile
                             </DropdownMenuItem>
                             <DropdownMenuItem>
-                                <IconNotification/>
+                                <BellIcon/>
                                 Notifications
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator/>
                         <DropdownMenuItem onClick={logout}>
-                            <IconLogout/>
+                            <LogOutIcon/>
                             Déconnexion
                         </DropdownMenuItem>
                     </DropdownMenuContent>

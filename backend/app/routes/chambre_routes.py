@@ -8,7 +8,7 @@ import json
 
 from app.decorators import role_required
 from app.routes.user_routes import serialize_utilisateur
-from app.serialisation import serialize_chambre
+from app.serialization import serialize_chambre
 
 chambre_bp = Blueprint('chambre_bp', __name__, url_prefix='/api')
 

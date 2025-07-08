@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import type {Paiement} from '../types/common';
-import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table';
+import type {Paiement} from '../../types/common.ts';
+import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card.tsx';
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table.tsx';
 
 const PaymentDashboardPage: React.FC = () => {
     const [paiements, setPaiements] = useState<Paiement[]>([]);

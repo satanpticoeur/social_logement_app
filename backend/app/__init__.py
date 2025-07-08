@@ -19,16 +19,14 @@ bcrypt = Bcrypt()
 jwt = JWTManager()
 
 
-# Pas besoin de la variable globale `cors = CORS()` si vous l'initialisez dans create_app.
-
 def create_app(config_class=None):
     app = Flask(__name__)
 
     UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
-    os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Crée le dossier s'il n'existe pas
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limite la taille des uploads à 16MB
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
     # Extensions de fichiers autorisées
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
@@ -43,28 +41,17 @@ def create_app(config_class=None):
     app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
     app.config["JWT_ACCESS_COOKIE_PATH"] = "/"
 
-    # === MODIFICATIONS CRUCIALES POUR SAME_SITE ===
-    # Pour le développement (HTTP), nous devons définir SameSite à 'Lax'
-    # et JWT_COOKIE_SECURE à False.
-    # Si vous passez en production (HTTPS), vous devrez mettre JWT_COOKIE_SECURE à True
-    # et JWT_ACCESS_COOKIE_SAMESITE à 'None'.
 
-    app.config["JWT_COOKIE_SECURE"] = False  # Important pour HTTP en dev
+    app.config["JWT_COOKIE_SECURE"] = False
     app.config[
-        "JWT_ACCESS_COOKIE_SAMESITE"] = "Lax"  # Par défaut, mais spécifions-le. Le navigateur le change en "None" si Secure=True
-    # ^^^^^ Si 'Lax' ne suffit pas à cause de localhost/127.0.1, vous devrez passer à 'None'
-    # mais ALORS vous devrez lancer votre backend en HTTPS (ex: via un proxy comme ngrok)
-    # ou temporairement utiliser Flask-Env.
+        "JWT_ACCESS_COOKIE_SAMESITE"] = "Lax"
 
-    app.config["JWT_COOKIE_CSRF_PROTECT"] = True  # Laissez à True pour la sécurité CSRF
-    app.config["JWT_SECRET_KEY"] = "your_jwt_secret_key"
+    app.config["JWT_COOKIE_CSRF_PROTECT"] = True
+    app.config["JWT_SECRET_KEY"] = "my_jwt_secret_key"
 
     db.init_app(app)
     migrate.init_app(app, db)
 
-    # Configure CORS - Assurez-vous que l'URL de votre frontend est EXACTE.
-    # Si votre frontend est sur http://localhost:5173, mettez 'http://localhost:5173'
-    # Sinon, mettez '*' UNIQUEMENT POUR LE DÉVELOPPEMENT.
     CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173", "supports_credentials": True}})
 
     bcrypt.init_app(app)

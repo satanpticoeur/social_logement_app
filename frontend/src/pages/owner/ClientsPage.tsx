@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import type {Utilisateur} from '../types/common';
-import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table';
+import type {Utilisateur} from '../../types/common.ts';
+import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card.tsx';
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table.tsx';
 import {toast} from 'sonner';
-import {authenticatedFetch} from '@/lib/api';
+import {authenticatedFetch} from '@/lib/api.ts';
 import {useAuth} from "@/context/AuthContext.tsx";
 
 const ClientsPage: React.FC = () => {

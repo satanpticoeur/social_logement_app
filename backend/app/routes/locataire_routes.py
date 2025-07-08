@@ -2,60 +2,63 @@ from datetime import timedelta, datetime, date
 
 from flask import Blueprint, request, jsonify, current_app
 from app import db
-from app.models import Chambre, Maison, Media, Contrat, Utilisateur, Paiement
-from flask_jwt_extended import jwt_required, get_jwt_identity  # Si vous voulez que la recherche nécessite une connexion
+from app.models import Chambre, Maison, Contrat, Utilisateur, Paiement
+from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
+from sqlalchemy.orm import joinedload  # Import joinedload here
+
+from app.serialization import serialize_media  # Add others if needed for other routes
+
 locataire_bp = Blueprint('locataire', __name__, url_prefix='/api/locataire')
 
-# Note : Si vous voulez que cette route soit accessible sans authentification,
-# retirez le décorateur @jwt_required()
+
 @locataire_bp.route('/chambres/recherche', methods=['GET'])
-# @jwt_required() # Décommentez si la recherche est réservée aux utilisateurs connectés
+# @jwt_required()
 def search_chambres():
-    # Récupérer les paramètres de requête (query parameters)
     ville = request.args.get('ville')
     min_prix = request.args.get('min_prix', type=float)
     max_prix = request.args.get('max_prix', type=float)
     type_chambre = request.args.get('type')
     meublee = request.args.get('meublee')
-    disponible = request.args.get('disponible', type=bool, default=True) # Par défaut, ne montrer que les disponibles
-    query = Chambre.query.join(Maison) # Joindre avec Maison pour filtrer par ville, etc.
+    disponible = request.args.get('disponible', type=bool, default=True)
 
-    # Appliquer les filtres
+    # Use joinedload for optimization
+    query = Chambre.query.join(Maison) \
+        .options(joinedload(Chambre.maison)) \
+        .options(joinedload(Chambre.medias))
+
     if ville:
-        query = query.filter(Maison.ville.ilike(f'%{ville}%')) # Recherche insensible à la casse
+        query = query.filter(Maison.ville.ilike(f'%{ville}%'))
     if min_prix is not None:
         query = query.filter(Chambre.prix >= min_prix)
     if max_prix is not None:
         query = query.filter(Chambre.prix <= max_prix)
     if type_chambre:
         query = query.filter(Chambre.type.ilike(f'%{type_chambre}%'))
-    if meublee is not None: # Vérifier si meublee est un booléen
-        print(f"Valeur de meublee reçue : {meublee}")  # Pour débogage
-        if meublee == 'false':
-            meublee = False
-        else:
-            meublee = True
+    if meublee is not None:
+        if isinstance(meublee, str):
+            meublee = meublee.lower() == 'true'
         query = query.filter(Chambre.meublee == meublee)
-    if disponible is not None: # Ceci est important pour les locataires
+    if disponible is not None:
+        if isinstance(disponible, str):
+            disponible = disponible.lower() == 'true'
         query = query.filter(Chambre.disponible == disponible)
 
     chambres = query.all()
 
+    if not chambres:
+        return jsonify({"message": "Aucune chambre trouvée avec ces critères."}), 404
+
     results = []
     for chambre in chambres:
-        # Récupérer les médias (photos) pour chaque chambre
-        medias_data = [
-            {"id": media.id, "url": media.url, "type": media.type, "description": media.description}
-            for media in chambre.medias
-        ]
+        # Using serialize_media from app.serialization
+        medias_data = [serialize_media(media) for media in chambre.medias] if hasattr(chambre, 'medias') else []
 
-        # Inclure l'adresse de la maison pour faciliter la recherche front-end
         results.append({
             "id": chambre.id,
             "maison_id": chambre.maison_id,
-            "adresse_maison": chambre.maison.adresse,
-            "ville_maison": chambre.maison.ville,
+            "adresse_maison": chambre.maison.adresse if chambre.maison else None,
+            "ville_maison": chambre.maison.ville if chambre.maison else None,
             "titre": chambre.titre,
             "description": chambre.description,
             "taille": chambre.taille,
@@ -70,25 +73,25 @@ def search_chambres():
 
     return jsonify(results), 200
 
+
 # Route pour obtenir les détails d'une chambre spécifique (par son ID)
 @locataire_bp.route('/chambres/<int:chambre_id>', methods=['GET'])
-# @jwt_required() # Décommentez si les détails de chambre sont réservés aux utilisateurs connectés
+# @jwt_required()
 def get_chambre_details(chambre_id):
-    chambre = Chambre.query.get(chambre_id)
+    # Load chambre with its relations for serialization
+    chambre = Chambre.query.options(joinedload(Chambre.maison), joinedload(Chambre.medias)).get(chambre_id)
 
-    if not chambre or not chambre.disponible: # S'assurer que la chambre est disponible pour les locataires
+    if not chambre or not chambre.disponible:
         return jsonify({"message": "Chambre non trouvée ou non disponible."}), 404
 
-    medias_data = [
-        {"id": media.id, "url": media.url, "type": media.type, "description": media.description}
-        for media in chambre.medias
-    ]
+    # Using serialize_media from app.serialization
+    medias_data = [serialize_media(media) for media in chambre.medias] if hasattr(chambre, 'medias') else []
 
     return jsonify({
         "id": chambre.id,
         "maison_id": chambre.maison_id,
-        "adresse_maison": chambre.maison.adresse,
-        "ville_maison": chambre.maison.ville,
+        "adresse_maison": chambre.maison.adresse if chambre.maison else None,
+        "ville_maison": chambre.maison.ville if chambre.maison else None,
         "titre": chambre.titre,
         "description": chambre.description,
         "taille": chambre.taille,
@@ -101,30 +104,27 @@ def get_chambre_details(chambre_id):
         "medias": medias_data
     }), 200
 
-# Fonction utilitaire pour générer les paiements (peut être placée ici ou dans un fichier utils.py)
+
+# Utility function to generate payments (can be placed here or in a utils.py file)
 def generer_paiements_contrat(contrat: Contrat):
     """
     Génère les paiements mensuels pour un contrat donné.
     """
     paiements_generes = []
     current_date = contrat.date_debut
-    # Le prix de la chambre est le montant du loyer mensuel
     loyer_mensuel = contrat.chambre.prix
 
-    # Gérer la caution si elle existe et n'est pas déjà un paiement
     if contrat.montant_caution and contrat.montant_caution > 0:
-        # Pour le MVP, on suppose que la caution est due à la date de début du contrat
         paiement_caution = Paiement(
             contrat_id=contrat.id,
             montant=contrat.montant_caution,
             date_echeance=contrat.date_debut,
-            statut='impayé', # Initialement impayé, le locataire devra le "payer"
+            statut='impayé',
             description="Paiement de la caution"
         )
         db.session.add(paiement_caution)
         paiements_generes.append(paiement_caution)
 
-    # Générer les paiements mensuels
     while current_date <= contrat.date_fin:
         paiement_loyer = Paiement(
             contrat_id=contrat.id,
@@ -136,18 +136,15 @@ def generer_paiements_contrat(contrat: Contrat):
         db.session.add(paiement_loyer)
         paiements_generes.append(paiement_loyer)
 
-        # Passer au mois suivant
-        # Gérer le changement d'année et de mois correctement
         year = current_date.year
         month = current_date.month + 1
         if month > 12:
             month = 1
             year += 1
-        # Essayer de garder le même jour du mois, sinon, le dernier jour du mois
         try:
             current_date = date(year, month, current_date.day)
-        except ValueError: # Si le jour n'existe pas dans le mois (ex: 31 Février)
-            current_date = date(year, month, 1) + timedelta(days=-1) # Dernier jour du mois précédent
+        except ValueError:
+            current_date = date(year, month, 1) + timedelta(days=-1)
 
     return paiements_generes
 
@@ -159,7 +156,7 @@ def louer_chambre(chambre_id):
     locataire_id = json.loads(current_user_identity)['id']
 
     locataire = Utilisateur.query.get(locataire_id)
-    if not locataire or locataire.role != 'locataire': # Vérifier le rôle de l'utilisateur
+    if not locataire or locataire.role != 'locataire':
         return jsonify({"message": "Accès refusé. Seuls les locataires peuvent louer une chambre."}), 403
 
     chambre = Chambre.query.get(chambre_id)
@@ -180,13 +177,6 @@ def louer_chambre(chambre_id):
     except ValueError:
         return jsonify({"message": "Format de date de début invalide. Utilisez YYYY-MM-DD."}), 400
 
-    # Calcul de la date de fin : duree_mois est le nombre de mois complets
-    # Par exemple, pour 12 mois, du 1er Janvier au 31 Décembre de la même année.
-    # Pour simplifier, nous allons juste ajouter les mois.
-    # Une meilleure approche serait d'utiliser dateutil.relativedelta
-    # Pour un MVP, on peut faire une estimation simple :
-    # Si le contrat commence le 1er janvier et dure 12 mois, il se termine le 31 décembre.
-    # Si le contrat commence le 15 janvier et dure 12 mois, il se termine le 14 janvier de l'année suivante.
     date_fin_contrat = date_debut_contrat
     for _ in range(duree_mois):
         year, month = date_fin_contrat.year, date_fin_contrat.month
@@ -196,26 +186,22 @@ def louer_chambre(chambre_id):
             year += 1
         try:
             date_fin_contrat = date(year, month, date_fin_contrat.day)
-        except ValueError: # Pour gérer les mois avec moins de jours (ex: février)
-            date_fin_contrat = date(year, month, 1) - timedelta(days=1) # Aller au dernier jour du mois précédent (ex: 28 ou 29 fév)
+        except ValueError:
+            date_fin_contrat = date(year, month, 1) - timedelta(days=1)
 
-    # Assurez-vous que la date de fin est le jour avant pour une durée exacte de X mois
     date_fin_contrat = date_fin_contrat - timedelta(days=1)
 
-
-    montant_caution = data.get('montant_caution', float(chambre.prix) * 2) # Par défaut 2 mois de loyer comme caution
+    montant_caution = data.get('montant_caution', float(chambre.prix) * 2)
     mois_caution = data.get('mois_caution', 2)
     mode_paiement = data.get('mode_paiement', 'virement_bancaire')
     periodicite = data.get('periodicite', 'mensuel')
 
     try:
-        db.session.begin_nested() # Début de la transaction
+        db.session.begin_nested()
 
-        # 1. Mettre à jour la disponibilité de la chambre
         chambre.disponible = False
         db.session.add(chambre)
 
-        # 2. Créer le contrat
         new_contrat = Contrat(
             locataire_id=locataire_id,
             chambre_id=chambre_id,
@@ -229,12 +215,11 @@ def louer_chambre(chambre_id):
             description=f"Contrat de location pour la chambre '{chambre.titre}' du {date_debut_contrat.isoformat()} au {date_fin_contrat.isoformat()}."
         )
         db.session.add(new_contrat)
-        db.session.flush() # Permet d'obtenir l'ID du contrat avant le commit complet
+        db.session.flush()
 
-        # 3. Générer les paiements pour ce contrat
         generer_paiements_contrat(new_contrat)
 
-        db.session.commit() # Commit la transaction entière
+        db.session.commit()
 
         return jsonify({
             "message": "Chambre louée avec succès et contrat, incluant l'échéancier des paiements, généré !",
@@ -245,8 +230,10 @@ def louer_chambre(chambre_id):
 
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"Erreur lors de la location de la chambre {chambre_id} ou génération des paiements: {e}")
-        return jsonify({"message": "Erreur lors de la location de la chambre. Veuillez réessayer.", "error": str(e)}), 500
+        current_app.logger.error(
+            f"Erreur lors de la location de la chambre {chambre_id} ou génération des paiements: {e}")
+        return jsonify(
+            {"message": "Erreur lors de la location de la chambre. Veuillez réessayer.", "error": str(e)}), 500
 
 
 @locataire_bp.route('/contrats', methods=['GET'])
@@ -255,22 +242,19 @@ def get_locataire_contrats():
     current_user_identity = get_jwt_identity()
     locataire_id = json.loads(current_user_identity)['id']
 
-    # Récupérer tous les contrats où cet utilisateur est le locataire
-    # Trier par date de début (les plus récents en premier)
     contrats = Contrat.query.filter_by(locataire_id=locataire_id).order_by(Contrat.date_debut.desc()).all()
 
     results = []
     for contrat in contrats:
-        # Assurez-vous de charger la chambre et la maison pour les infos affichées
         chambre = contrat.chambre
-        maison = chambre.maison
+        maison = chambre.maison if chambre else None
 
         results.append({
             "id": contrat.id,
-            "chambre_id": chambre.id,
-            "chambre_titre": chambre.titre,
-            "chambre_adresse": f"{maison.adresse}, {maison.ville}",
-            "prix_mensuel_chambre": float(chambre.prix), # Inclure le prix de la chambre
+            "chambre_id": chambre.id if chambre else None,
+            "chambre_titre": chambre.titre if chambre else None,
+            "chambre_adresse": f"{maison.adresse}, {maison.ville}" if maison else None,
+            "prix_mensuel_chambre": float(chambre.prix) if chambre and chambre.prix else None,
             "date_debut": contrat.date_debut.isoformat(),
             "date_fin": contrat.date_fin.isoformat(),
             "montant_caution": float(contrat.montant_caution) if contrat.montant_caution else None,
@@ -283,7 +267,8 @@ def get_locataire_contrats():
         })
     return jsonify(results), 200
 
-# Endpoint pour obtenir les détails d'un contrat spécifique du locataire (optionnel pour l'instant)
+
+# Endpoint to get details of a specific contract for the tenant
 @locataire_bp.route('/contrats/<int:contrat_id>', methods=['GET'])
 @jwt_required()
 def get_locataire_contrat_details(contrat_id):
@@ -296,20 +281,20 @@ def get_locataire_contrat_details(contrat_id):
         return jsonify({"message": "Contrat non trouvé ou non autorisé."}), 404
 
     chambre = contrat.chambre
-    maison = chambre.maison
+    maison = chambre.maison if chambre else None
 
     contrat_details = {
         "id": contrat.id,
-        "chambre_id": chambre.id,
-        "chambre_titre": chambre.titre,
-        "chambre_description": chambre.description,
-        "chambre_taille": chambre.taille,
-        "chambre_type": chambre.type,
-        "chambre_meublee": chambre.meublee,
-        "chambre_salle_de_bain": chambre.salle_de_bain,
-        "chambre_prix": float(chambre.prix),
-        "chambre_disponible": chambre.disponible,
-        "chambre_adresse": f"{maison.adresse}, {maison.ville}",
+        "chambre_id": chambre.id if chambre else None,
+        "chambre_titre": chambre.titre if chambre else None,
+        "chambre_description": chambre.description if chambre else None,
+        "chambre_taille": chambre.taille if chambre else None,
+        "chambre_type": chambre.type if chambre else None,
+        "chambre_meublee": chambre.meublee if chambre else None,
+        "chambre_salle_de_bain": chambre.salle_de_bain if chambre else None,
+        "chambre_prix": float(chambre.prix) if chambre and chambre.prix else None,
+        "chambre_disponible": chambre.disponible if chambre else None,
+        "chambre_adresse": f"{maison.adresse}, {maison.ville}" if maison else None,
         "date_debut": contrat.date_debut.isoformat(),
         "date_fin": contrat.date_fin.isoformat(),
         "montant_caution": float(contrat.montant_caution) if contrat.montant_caution else None,
@@ -319,15 +304,12 @@ def get_locataire_contrat_details(contrat_id):
         "statut": contrat.statut,
         "description": contrat.description,
         "cree_le": contrat.cree_le.isoformat(),
-        # Vous pouvez ajouter ici la liste des paiements associés si vous les avez déjà implémentés
-        "paiements": [{"id": p.id, "montant": float(p.montant), "date_echeance": p.date_echeance.isoformat(), "statut": p.statut} for p in contrat.paiements]
+        "paiements": [
+            {"id": p.id, "montant": float(p.montant), "date_echeance": p.date_echeance.isoformat(), "statut": p.statut,
+             "description": p.description} for p in contrat.paiements]
     }
     return jsonify(contrat_details), 200
 
-
-# your_app_name/locataire_routes.py
-# ... (imports existants) ...
-# ... (vos routes existantes) ...
 
 @locataire_bp.route('/contrats/<int:contrat_id>/paiements', methods=['GET'])
 @jwt_required()
@@ -349,7 +331,19 @@ def get_locataire_contrat_paiements(contrat_id):
             "date_echeance": paiement.date_echeance.isoformat(),
             "date_paiement": paiement.date_paiement.isoformat() if paiement.date_paiement else None,
             "statut": paiement.statut,
-            "description": paiement.description,
+            "description": paiement.description if hasattr(paiement, 'description') else None,
+            # Added description field
             "cree_le": paiement.cree_le.isoformat()
         })
     return jsonify(results), 200
+
+# REMOVE THESE ROUTES AS DemandeLocation DOES NOT EXIST
+# @locataire_bp.route('/demander-location', methods=['POST'])
+# @jwt_required()
+# def creer_demande_location():
+#     pass # ... (delete the entire function) ...
+
+# @locataire_bp.route('/demandes-location', methods=['GET'])
+# @jwt_required()
+# def get_mes_demandes_location():
+#     pass # ... (delete the entire function) ...

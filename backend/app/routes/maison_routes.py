@@ -4,7 +4,7 @@ from flask_jwt_extended import get_jwt_identity
 from app import db
 from app.decorators import role_required
 from app.models import Maison, Utilisateur
-from app.serialisation import serialize_maison
+from app.serialization import serialize_maison
 import json
 
 maison_bp = Blueprint('api', __name__, url_prefix='/api')

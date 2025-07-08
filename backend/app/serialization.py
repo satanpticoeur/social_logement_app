@@ -23,7 +23,6 @@ def serialize_maison(maison):
         "ville": maison.ville,
         "description": maison.description,
         "cree_le": maison.cree_le.isoformat() if maison.cree_le else None,
-        # Inclure le propriétaire si joint par joinedload
         "proprietaire": serialize_utilisateur(maison.proprietaire) if hasattr(maison, 'proprietaire') else None
     }
 

@@ -24,12 +24,10 @@ export default function DashboardLayoutPage() {
     const location = useLocation();
     const currentPathname = location.pathname;
 
-    console.log('Current pathname:', currentPathname);
-
     useEffect(() => {
         if (!isAuthenticated || user?.role !== 'proprietaire') {
             toast.error("Accès refusé. Veuillez vous connecter en tant que propriétaire.");
-            navigate('/login');
+            navigate('/');
             return;
         }
         setLoading(false);

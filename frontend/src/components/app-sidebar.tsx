@@ -12,7 +12,6 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import {BedDoubleIcon, HandCoinsIcon, HouseIcon, LayoutDashboardIcon, ListIcon, UsersIcon} from "lucide-react";
-import {IconInnerShadowTop} from "@tabler/icons-react";
 
 const navMain = [
     {
@@ -60,7 +59,6 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
                             className="data-[slot=sidebar-menu-button]:!p-1.5"
                         >
                             <a href="#">
-                                <IconInnerShadowTop className="!size-5"/>
                                 <span className="text-base font-semibold">
                   Social Logment
                 </span>

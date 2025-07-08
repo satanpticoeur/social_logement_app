@@ -1,11 +1,11 @@
-// src/pages/LocatairePaiementsPage.tsx
+// src/pages/ProprietairePaiementsPage.tsx
 import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
-import {authenticatedFetch} from '@/lib/api';
+import {authenticatedFetch} from '@/lib/api.ts';
 import {toast} from 'sonner';
-import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
-import {Badge} from "@/components/ui/badge";
-import {Button} from "@/components/ui/button";
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card.tsx";
+import {Badge} from "@/components/ui/badge.tsx";
+import {Button} from "@/components/ui/button.tsx";
 
 interface Paiement {
     id: number;
@@ -17,58 +17,70 @@ interface Paiement {
     cree_le: string;
 }
 
-const LocatairePaiementsPage: React.FC = () => {
-    const {contratId} = useParams<{ contratId: string }>();
+const ProprietairePaiementsPage: React.FC = () => {
+    const {id} = useParams();
+    const contratId = id || '';
     const navigate = useNavigate();
     const [paiements, setPaiements] = useState<Paiement[]>([]);
     const [loading, setLoading] = useState(true);
-    const [contratInfo, setContratInfo] = useState({chambreTitre: '', chambreAdresse: ''});
-
+    const [contratInfo, setContratInfo] = useState({chambreTitre: '', locataireNom: ''}); // Pour le titre de la page
 
     useEffect(() => {
         if (contratId) {
             fetchPaiements();
-            fetchContratInfo(Number(contratId)); // Récupérer des infos pour le titre
+            // Optionnel: Récupérer des infos sur le contrat pour le titre de la page
+            fetchContratDetailsForInfo(Number(contratId));
         }
     }, [contratId]);
 
-    const fetchContratInfo = async (id: number) => {
+    const fetchContratDetailsForInfo = async (id: number) => {
         try {
-            // Utiliser l'endpoint de détails de contrat pour récupérer les infos
-            const data = await authenticatedFetch(`locataire/contrats/${id}`, {method: 'GET'});
-            setContratInfo({
-                chambreTitre: data.chambre_titre,
-                chambreAdresse: data.chambre_adresse
-            });
+            // Endpoint à créer si vous n'avez pas de route PUT /proprietaire/contrats/<id>
+            // Pour l'instant, on se base sur les infos disponibles dans le `get_proprietaire_contrats`
+            // ou on pourrait créer un endpoint spécifique: `proprietaire/contrats/<id>`
+            const data = await authenticatedFetch(`proprietaire/contrats`, {method: 'GET', credentials: "include"});
+            const currentContrat = data.find((c: any) => c.id === id);
+            if (currentContrat) {
+                setContratInfo({
+                    chambreTitre: currentContrat.chambre_titre,
+                    locataireNom: currentContrat.locataire_nom_utilisateur
+                });
+            }
         } catch (error) {
-            console.error("Erreur lors de la récupération des infos du contrat:", error);
-            toast.error("Impossible de charger les informations du contrat.");
+            console.error("Erreur lors de la récupération des infos du contrat pour le titre:", error);
         }
     };
-
 
     const fetchPaiements = async () => {
         setLoading(true);
         try {
-            // Pour l'instant, le locataire n'a pas d'endpoint direct /contrats/:id/paiements
-            // Il faudrait soit l'ajouter au backend, soit récupérer tous les paiements du locataire
-            // et filtrer (moins efficace).
-            // Pour le MVP, on peut créer un endpoint temporaire ou supposer que l'endpoint
-            // `/locataire/contrats/<int:contrat_id>` renverrait aussi les paiements.
-            // OU: ajouter un endpoint dans locataire_routes.py:
-            // @locataire_bp.route('/contrats/<int:contrat_id>/paiements', methods=['GET'])
-            // qui serait similaire à celui du propriétaire.
-
-            // Pour l'exemple, supposons que nous avons cet endpoint:
-            const data: Paiement[] = await authenticatedFetch(`locataire/contrats/${contratId}/paiements`, {method: 'GET'});
+            const data: Paiement[] = await authenticatedFetch(`proprietaire/contrats/${contratId}/paiements`, {
+                method: 'GET',
+                credentials: "include"
+            });
             setPaiements(data);
+            console.log("Paiements chargés:", data);
             toast.success(`${data.length} paiements chargés.`);
         } catch (error: any) {
             console.error('Erreur lors du chargement des paiements:', error);
             toast.error("Échec du chargement des paiements.", {description: error.message || "Erreur inconnue."});
-            // navigate('/locataire/contrats'); // Rediriger en cas d'erreur
+            // navigate('/proprietaire/contrats'); // Rediriger en cas d'erreur
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleMarquerPaye = async (paiementId: number) => {
+        if (!window.confirm("Êtes-vous sûr de vouloir marquer ce paiement comme 'payé' ?")) {
+            return;
+        }
+        try {
+            await authenticatedFetch(`proprietaire/paiements/${paiementId}/marquer_paye`, {method: 'PUT'});
+            toast.success("Paiement marqué comme payé !");
+            fetchPaiements(); // Recharger la liste pour mettre à jour le statut
+        } catch (error: any) {
+            console.error('Erreur lors du marquage du paiement:', error);
+            toast.error("Échec du marquage du paiement.", {description: error.message || "Erreur inconnue."});
         }
     };
 
@@ -92,9 +104,9 @@ const LocatairePaiementsPage: React.FC = () => {
     return (
         <div className="container mx-auto p-4">
             <Button onClick={() => navigate(-1)} className="mb-6">Retour aux contrats</Button>
-            <h1 className="text-3xl font-bold mb-4 text-center">Échéancier de Paiements</h1>
+            <h1 className="text-3xl font-bold mb-4 text-center">Gestion des Paiements</h1>
             <h2 className="text-xl text-gray-700 mb-6 text-center">
-                pour "{contratInfo.chambreTitre}" - {contratInfo.chambreAdresse}
+                pour "{contratInfo.chambreTitre}" - Locataire: {contratInfo.locataireNom}
             </h2>
 
             {paiements.length === 0 ? (
@@ -121,9 +133,13 @@ const LocatairePaiementsPage: React.FC = () => {
                                 )}
                             </CardContent>
                             <CardFooter className="flex justify-end">
-                                {/* Ici, un locataire n'aura pas de bouton "Marquer payé", mais potentiellement "Payer maintenant" */}
                                 {paiement.statut === 'impayé' && (
-                                    <Button disabled>Payer maintenant (à implémenter)</Button>
+                                    <Button
+                                        onClick={() => handleMarquerPaye(paiement.id)}
+                                        size="sm"
+                                    >
+                                        Marquer comme payé
+                                    </Button>
                                 )}
                             </CardFooter>
                         </Card>
@@ -134,4 +150,4 @@ const LocatairePaiementsPage: React.FC = () => {
     );
 };
 
-export default LocatairePaiementsPage;
+export default ProprietairePaiementsPage;

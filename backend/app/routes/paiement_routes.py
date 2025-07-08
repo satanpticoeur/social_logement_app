@@ -6,7 +6,7 @@ from decimal import Decimal
 from app import db
 from app.models import Contrat, Paiement
 from app.models import Maison, Chambre
-from app.serialisation import  serialize_paiement
+from app.serialization import  serialize_paiement
 
 paiement_bp = Blueprint('paiement_bp', __name__, url_prefix='/api')
 

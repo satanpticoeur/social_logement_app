@@ -1,11 +1,10 @@
-import {BoltIcon, BookOpenIcon, Layers2Icon, LogOutIcon, PinIcon, UserPenIcon,} from "lucide-react"
+import {BellIcon, LogOutIcon, UserCircleIcon} from "lucide-react"
 
 import {Avatar, AvatarFallback, AvatarImage,} from "@/components/ui/avatar"
 import {Button} from "@/components/ui/button"
 import {
     DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
+    DropdownMenuContent, DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
@@ -38,9 +37,6 @@ export default function UserMenu() {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="max-w-64" align="end">
                 <DropdownMenuLabel className="flex min-w-0 flex-col">
-                    {/*<span className="text-foreground truncate text-sm font-medium">*/}
-                    {/*    {user ? user.nom_utilisateur : "Unknown User"}*/}
-                    {/*</span>*/}
 
                     <span className="text-foreground truncate text-sm font-medium">
                         {user ? user.email : "No email provided"}
@@ -51,36 +47,24 @@ export default function UserMenu() {
                     </span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator/>
+
                 <DropdownMenuGroup>
                     <DropdownMenuItem>
-                        <BoltIcon size={16} className="opacity-60" aria-hidden="true"/>
-                        <span>Option 1</span>
+                        <UserCircleIcon size={16} className="opacity-60" aria-hidden="true"/>
+                        <span>Mon profil</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                        <Layers2Icon size={16} className="opacity-60" aria-hidden="true"/>
-                        <span>Option 2</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        <BookOpenIcon size={16} className="opacity-60" aria-hidden="true"/>
-                        <span>Option 3</span>
+                        <BellIcon size={16} className="opacity-60" aria-hidden="true"/>
+                        <span>Notifications</span>
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
-                <DropdownMenuSeparator/>
-                <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                        <PinIcon size={16} className="opacity-60" aria-hidden="true"/>
-                        <span>Option 4</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        <UserPenIcon size={16} className="opacity-60" aria-hidden="true"/>
-                        <span>Option 5</span>
-                    </DropdownMenuItem>
-                </DropdownMenuGroup>
+
+
                 <DropdownMenuSeparator/>
                 <DropdownMenuItem
                     onClick={logout}>
                     <LogOutIcon size={16} className="opacity-60" aria-hidden="true"/>
-                    <span>Logout</span>
+                    <span>Déconnexion</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

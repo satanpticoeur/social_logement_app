@@ -50,15 +50,21 @@ export const AuthProvider = ({children}: { children: ReactNode }) => {
                 credentials: 'include',
             });
 
-            console.log("CheckAuthStatus response:", response);
-
             if (response.ok) {
                 const data = await response.json();
                 setUser({id: data.user_id, nom_utilisateur: data.nom_utilisateur, role: data.role, email: data.email});
 
-                //     redirect to the home page if the user is authenticated
                 if (window.location.pathname === '/login' || window.location.pathname === '/register') {
-                    navigate('/');
+                    // si l'utilisateur est un loctaire
+                    if (data.role === 'locataire') {
+                        navigate('/locataire/dashboard');
+                    } else if (data.role === 'proprietaire') {
+                        navigate('/owner/dashboard');
+                    } else if (data.role === 'admin') {
+                        navigate('/admin/dashboard');
+                    } else {
+                        navigate('/');
+                    }
                 }
             } else if (response.status === 401 || response.status === 403) {
                 setUser(null);

@@ -1,10 +1,10 @@
 // src/pages/LocataireContratsPage.tsx
 import React, {useEffect, useState} from 'react';
-import {authenticatedFetch} from '@/lib/api';
+import {authenticatedFetch} from '@/lib/api.ts';
 import {toast} from 'sonner';
-import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
-import {Badge} from "@/components/ui/badge";
-import {Button} from "@/components/ui/button";
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card.tsx";
+import {Badge} from "@/components/ui/badge.tsx";
+import {Button} from "@/components/ui/button.tsx";
 import {Link} from 'react-router-dom';
 
 interface ContratLocataire {
@@ -24,7 +24,7 @@ interface ContratLocataire {
     cree_le: string;
 }
 
-const LocataireContratsPage: React.FC = () => {
+const LodgerContractsPage: React.FC = () => {
     const [contrats, setContrats] = useState<ContratLocataire[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -118,4 +118,4 @@ const LocataireContratsPage: React.FC = () => {
     );
 };
 
-export default LocataireContratsPage;
+export default LodgerContractsPage;

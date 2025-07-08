@@ -8,7 +8,7 @@ from werkzeug.utils import secure_filename
 from app import db
 from app.decorators import role_required
 from app.models import Chambre, Media
-from app.serialisation import serialize_media
+from app.serialization import serialize_media
 
 media_bp = Blueprint('media_bp', __name__, url_prefix='/api')
 

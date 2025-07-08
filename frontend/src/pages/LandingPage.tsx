@@ -25,7 +25,7 @@ export const LandingPage: React.FC = () => {
                                 Découvrir les Chambres
                             </Button>
                         </Link>
-                        <Link to="/dashboard">
+                        <Link to="/owner/dashboard">
                             {/* Les boutons "outline" utilisent border et foreground */}
                             <Button variant="outline" size="lg"
                                     className="transition duration-300"> {/* Supprime les classes de couleur manuelles */}
@@ -110,7 +110,7 @@ export const LandingPage: React.FC = () => {
                         </div>
                     </div>
                     <div className="text-center mt-12">
-                        <Link to="/dashboard">
+                        <Link to="/owner/dashboard">
                             <Button size="lg" className="shadow-md transition duration-300"> {/* Bouton par défaut */}
                                 Démarrez la Gestion de Vos Biens
                             </Button>

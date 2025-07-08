@@ -1,11 +1,11 @@
 // src/pages/LocataireChambreDetailsPage.tsx
 import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
-import {authenticatedFetch} from '@/lib/api';
+import {authenticatedFetch} from '@/lib/api.ts';
 import {toast} from 'sonner';
-import {Button} from "@/components/ui/button";
-import {Badge} from "@/components/ui/badge";
-import {Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious} from "@/components/ui/carousel";
+import {Button} from "@/components/ui/button.tsx";
+import {Badge} from "@/components/ui/badge.tsx";
+import {Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious} from "@/components/ui/carousel.tsx";
 import {
     Dialog,
     DialogContent,
@@ -14,13 +14,13 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger
-} from "@/components/ui/dialog"; // Importez Dialog components
-import {Calendar} from "@/components/ui/calendar";
-import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
+} from "@/components/ui/dialog.tsx"; // Importez Dialog components
+import {Calendar} from "@/components/ui/calendar.tsx";
+import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover.tsx";
 import {format} from "date-fns";
 import {CalendarIcon} from "lucide-react";
-import {Label} from '@/components/ui/label';
-import {Input} from '@/components/ui/input'; // Pour la durée
+import {Label} from '@/components/ui/label.tsx';
+import {Input} from '@/components/ui/input.tsx'; // Pour la durée
 
 // Interfaces (doivent être cohérentes avec le backend)
 interface Media {
@@ -47,7 +47,7 @@ interface ChambreDetails {
     medias: Media[];
 }
 
-const LocataireChambreDetailsPage: React.FC = () => {
+const LodgerRoomDetailsPage: React.FC = () => {
     const {chambreId} = useParams<{ chambreId: string }>();
     const navigate = useNavigate();
     const [chambre, setChambre] = useState<ChambreDetails | null>(null);
@@ -272,4 +272,4 @@ const LocataireChambreDetailsPage: React.FC = () => {
     );
 };
 
-export default LocataireChambreDetailsPage;
+export default LodgerRoomDetailsPage;

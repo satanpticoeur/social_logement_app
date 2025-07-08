@@ -1,7 +1,7 @@
 
 from flask import Blueprint, request, jsonify, abort
 from app.models import Utilisateur, db
-from app.serialisation import serialize_utilisateur
+from app.serialization import serialize_utilisateur
 
 user_bp = Blueprint('user_bp', __name__, url_prefix='/api')
 

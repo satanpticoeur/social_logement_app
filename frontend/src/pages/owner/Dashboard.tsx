@@ -1,8 +1,8 @@
 import {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {authenticatedFetch} from '@/lib/api.ts'; // Votre fonction fetch authentifiée
+import {authenticatedFetch} from '@/lib/api.ts';
 import {toast} from 'sonner';
-import {useAuth} from "@/context/UseAuth.tsx";
+import {useAuth} from "@/context/AuthContext.tsx";
 
 interface DashboardSummary {
     total_paye: number;
@@ -21,7 +21,7 @@ export default function Page() {
     useEffect(() => {
         if (!isAuthenticated || user?.role !== 'proprietaire') {
             toast.error("Accès refusé. Veuillez vous connecter en tant que propriétaire.");
-            navigate('/login');
+            navigate('/');
             return;
         }
         fetchDashboardSummary();

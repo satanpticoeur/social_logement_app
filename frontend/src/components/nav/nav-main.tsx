@@ -1,5 +1,3 @@
-import {type Icon, IconCirclePlusFilled} from "@tabler/icons-react"
-
 import {
     SidebarGroup,
     SidebarGroupContent,
@@ -8,6 +6,8 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar.tsx"
 import {Link} from "react-router-dom";
+import {CirclePlusIcon} from "lucide-react";
+import React from "react";
 
 export function NavMain({
                             items,
@@ -15,7 +15,7 @@ export function NavMain({
     items: {
         title: string
         url: string
-        icon?: Icon | React.ComponentType<React.SVGProps<SVGSVGElement> | { size?: string | number }>;
+        icon?: React.ComponentType<React.SVGProps<SVGSVGElement> | React.ComponentPropsWithoutRef<'svg'>>
     }[]
 }) {
 
@@ -28,7 +28,7 @@ export function NavMain({
                             tooltip="Quick Create"
                             className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
                         >
-                            <IconCirclePlusFilled/>
+                            <CirclePlusIcon className="w-4 h-4"/>
                             <span>Gestion des locations</span>
                         </SidebarMenuButton>
                     </SidebarMenuItem>

@@ -3,8 +3,6 @@ import React, { Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import PrivateRoute from '@/components/PrivateRoute'
-import PaymentDashboardPage from "@/pages/PaymentDashboardPage.tsx";
-import ContractDetailPage from "@/pages/contract/ContractDetailPage.tsx";
 
 
 // Pages Propriétaire
@@ -13,14 +11,17 @@ const OwnerClientsPage = React.lazy(() => import('@/pages/owner/OwnerClientsPage
 const OwnerHousesPage = React.lazy(() => import('@/pages/owner/OwnerHousesPage'));
 const OwnerRoomsPage = React.lazy(() => import('@/pages/owner/OwnerRoomsPage'));
 const OwnerContractsPage = React.lazy(() => import('@/pages/owner/OwnerContractsPage'));
-const ProprietairePaiementsPage = React.lazy(() => import('@/pages/ProprietairePaiementsPage'));
+const ProprietairePaiementsPage = React.lazy(() => import('@/pages/owner/ProprietairePaiementsPage.tsx'));
 const DashboardLayoutPage = React.lazy(() => import('@/pages/owner/DashboardLayout'));
+
+const PaymentDashboardPage = React.lazy(() => import('@/pages/owner/PaymentDashboardPage.tsx'));
+const ContractDetailPage = React.lazy(() => import('@/pages/contract/ContractDetailPage'));
 
 const OwnerRoutes: React.FC = () => {
     return (
         <Suspense fallback={<div>Chargement ...</div>}>
             <Routes>
-                <Route path="/owner/dashboard" element={<PrivateRoute><DashboardLayoutPage /></PrivateRoute>}>
+                <Route path="/" element={<PrivateRoute><DashboardLayoutPage /></PrivateRoute>}>
                     <Route index element={<OwnerDashboardPage />} />
                     <Route path="clients" element={<PrivateRoute> <OwnerClientsPage /></PrivateRoute>} />
                     <Route path="payments" element={<PrivateRoute> <PaymentDashboardPage /></PrivateRoute>} />

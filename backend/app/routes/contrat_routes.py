@@ -9,7 +9,7 @@ from dateutil.relativedelta import relativedelta
 
 from app.decorators import role_required
 from app.routes.user_routes import serialize_utilisateur
-from app.serialisation import serialize_contrat
+from app.serialization import serialize_contrat
 
 contrat_bp = Blueprint('contrat_bp', __name__, url_prefix='/api')
 

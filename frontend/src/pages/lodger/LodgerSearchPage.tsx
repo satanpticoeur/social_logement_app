@@ -1,16 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {authenticatedFetch} from '@/lib/api'; // Utilisez authenticatedFetch si la recherche nécessite une auth
+import {authenticatedFetch} from '@/lib/api.ts'; // Utilisez authenticatedFetch si la recherche nécessite une auth
 import {toast} from 'sonner';
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
-import {Badge} from "@/components/ui/badge";
+import {Button} from "@/components/ui/button.tsx";
+import {Input} from "@/components/ui/input.tsx";
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card.tsx";
+import {Badge} from "@/components/ui/badge.tsx";
 import {Link} from 'react-router-dom'; // Pour naviguer vers les détails de la chambre
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
-import {Label} from '@/components/ui/label';
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
+import {Label} from '@/components/ui/label.tsx';
 import {Slider} from "@/components/ui/slider.tsx";
 
-// Interfaces (à s'assurer qu'elles sont cohérentes et importables si nécessaire)
 interface Media {
     id: number;
     url: string;
@@ -35,7 +34,7 @@ interface Chambre {
     medias?: Media[];
 }
 
-const LocataireSearchPage: React.FC = () => {
+const LodgerSearchPage: React.FC = () => {
     const [chambres, setChambres] = useState<Chambre[]>([]);
     const [loading, setLoading] = useState(false);
     const [searchParams, setSearchParams] = useState({
@@ -101,14 +100,14 @@ const LocataireSearchPage: React.FC = () => {
 
             {/* Formulaire de Recherche et Filtres */}
             <form onSubmit={handleSearchSubmit}
-                  className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8 p-6 border rounded-lg shadow-sm bg-white">
+                  className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8 p-6 border rounded-lg shadow-sm">
                 <div>
-                    <Label htmlFor="ville">Ville</Label>
+                    <Label className={"mb-2"} htmlFor="ville">Ville</Label>
                     <Input id="ville" name="ville" value={searchParams.ville} onChange={handleInputChange}
                            placeholder="Dakar, Thiès..."/>
                 </div>
                 <div>
-                    <Label htmlFor="type">Type de Chambre</Label>
+                    <Label className={"mb-2"} htmlFor="type">Type de Chambre</Label>
                     <Select value={searchParams.type} onValueChange={(value) => handleSelectChange('type', value)}>
                         <SelectTrigger id="type">
                             <SelectValue placeholder="Sélectionner un type"/>
@@ -123,7 +122,7 @@ const LocataireSearchPage: React.FC = () => {
                     </Select>
                 </div>
                 <div>
-                    <Label htmlFor="meublee">Meublée</Label>
+                    <Label className={"mb-2"} htmlFor="meublee">Meublée</Label>
                     <Select value={searchParams.meublee}
                             onValueChange={(value) => handleSelectChange('meublee', value)}>
                         <SelectTrigger id="meublee">
@@ -138,7 +137,7 @@ const LocataireSearchPage: React.FC = () => {
                 </div>
                 {/* Exemple d'intégration d'un Slider de prix si vous avez ce composant */}
                 <div className="col-span-full">
-                    <Label>Gamme de Prix</Label>
+                    <Label className={"mb-2"}>Gamme de Prix</Label>
                     <Slider
                         min={0}
                         max={2000000} // Ajustez selon votre range de prix
@@ -218,4 +217,4 @@ const LocataireSearchPage: React.FC = () => {
     );
 };
 
-export default LocataireSearchPage;
+export default LodgerSearchPage;
