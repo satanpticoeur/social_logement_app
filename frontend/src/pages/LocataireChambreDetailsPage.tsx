@@ -1,26 +1,26 @@
 // src/pages/LocataireChambreDetailsPage.tsx
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { authenticatedFetch } from '@/lib/api';
-import { toast } from 'sonner';
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import React, {useEffect, useState} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
+import {authenticatedFetch} from '@/lib/api';
+import {toast} from 'sonner';
+import {Button} from "@/components/ui/button";
+import {Badge} from "@/components/ui/badge";
+import {Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious} from "@/components/ui/carousel";
 import {
     Dialog,
     DialogContent,
     DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
-    DialogFooter
+    DialogTrigger
 } from "@/components/ui/dialog"; // Importez Dialog components
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input'; // Pour la durée
+import {Calendar} from "@/components/ui/calendar";
+import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
+import {format} from "date-fns";
+import {CalendarIcon} from "lucide-react";
+import {Label} from '@/components/ui/label';
+import {Input} from '@/components/ui/input'; // Pour la durée
 
 // Interfaces (doivent être cohérentes avec le backend)
 interface Media {
@@ -48,7 +48,7 @@ interface ChambreDetails {
 }
 
 const LocataireChambreDetailsPage: React.FC = () => {
-    const { chambreId } = useParams<{ chambreId: string }>();
+    const {chambreId} = useParams<{ chambreId: string }>();
     const navigate = useNavigate();
     const [chambre, setChambre] = useState<ChambreDetails | null>(null);
     const [loading, setLoading] = useState(true);
@@ -69,12 +69,12 @@ const LocataireChambreDetailsPage: React.FC = () => {
     const fetchChambreDetails = async () => {
         setLoading(true);
         try {
-            const data: ChambreDetails = await authenticatedFetch(`locataire/chambres/${chambreId}`, { method: 'GET' });
+            const data: ChambreDetails = await authenticatedFetch(`locataire/chambres/${chambreId}`, {method: 'GET'});
             setChambre(data);
             toast.success("Détails de la chambre chargés.");
         } catch (error: any) {
             console.error('Erreur lors du chargement des détails de la chambre:', error);
-            toast.error("Échec du chargement des détails.", { description: error.message || "Erreur inconnue." });
+            toast.error("Échec du chargement des détails.", {description: error.message || "Erreur inconnue."});
             navigate('/locataire/recherche');
         } finally {
             setLoading(false);
@@ -105,13 +105,13 @@ const LocataireChambreDetailsPage: React.FC = () => {
             toast.success("Félicitations ! La chambre est louée et votre contrat a été généré.");
             setShowRentalDialog(false); // Fermer la modale
             // Mettre à jour l'état de la chambre pour qu'elle apparaisse indisponible
-            setChambre(prevChambre => prevChambre ? { ...prevChambre, disponible: false } : null);
+            setChambre(prevChambre => prevChambre ? {...prevChambre, disponible: false} : null);
             // Optionnel: Rediriger l'utilisateur vers son tableau de bord de contrats
             navigate('/locataire/contrats');
 
         } catch (error: any) {
             console.error('Erreur lors de la location de la chambre:', error);
-            toast.error("Échec de la location de la chambre.", { description: error.message || "Erreur inconnue." });
+            toast.error("Échec de la location de la chambre.", {description: error.message || "Erreur inconnue."});
         } finally {
             setIsSubmitting(false);
         }
@@ -147,11 +147,12 @@ const LocataireChambreDetailsPage: React.FC = () => {
                             </CarouselItem>
                         ))}
                     </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
+                    <CarouselPrevious/>
+                    <CarouselNext/>
                 </Carousel>
             ) : (
-                <div className="w-full max-w-2xl mx-auto h-96  flex items-center justify-center rounded-lg mb-8 text-gray-500">
+                <div
+                    className="w-full max-w-2xl mx-auto h-96  flex items-center justify-center rounded-lg mb-8 text-gray-500">
                     Aucune photo disponible pour cette chambre.
                 </div>
             )}
@@ -219,8 +220,9 @@ const LocataireChambreDetailsPage: React.FC = () => {
                                                 variant={"outline"}
                                                 className={`col-span-3 justify-start text-left font-normal ${!dateDebutContrat && "text-muted-foreground"}`}
                                             >
-                                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {dateDebutContrat ? format(dateDebutContrat, "PPP") : <span>Choisir une date</span>}
+                                                <CalendarIcon className="mr-2 h-4 w-4"/>
+                                                {dateDebutContrat ? format(dateDebutContrat, "PPP") :
+                                                    <span>Choisir une date</span>}
                                             </Button>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0">

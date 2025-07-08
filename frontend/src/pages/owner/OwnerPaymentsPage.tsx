@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { authenticatedFetch } from '@/lib/api.ts';
-import { toast } from 'sonner';
+import React, {useEffect, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {authenticatedFetch} from '@/lib/api.ts';
+import {toast} from 'sonner';
+import {useAuth} from "@/context/UseAuth.tsx";
 
 interface Paiement {
     id: number;
@@ -26,7 +26,7 @@ interface PaiementsResponse {
 }
 
 const OwnerPaymentsPage: React.FC = () => {
-    const { user, isAuthenticated } = useAuth();
+    const {user, isAuthenticated} = useAuth();
     const navigate = useNavigate();
     const [paiements, setPaiements] = useState<Paiement[]>([]);
     const [summary, setSummary] = useState<PaiementsResponse["dashboard_summary"]>(); // Pour le petit dashboard
@@ -44,13 +44,13 @@ const OwnerPaymentsPage: React.FC = () => {
     const fetchPaiements = async () => {
         try {
             setLoading(true);
-            const data: PaiementsResponse = await authenticatedFetch('/proprietaire/paiements', { method: 'GET' });
+            const data: PaiementsResponse = await authenticatedFetch('/proprietaire/paiements', {method: 'GET'});
             setPaiements(data.paiements);
             setSummary(data.dashboard_summary);
             toast.success("Liste des paiements chargée.");
         } catch (error: any) {
             console.error('Erreur lors du chargement des paiements:', error);
-            toast.error("Échec du chargement des paiements.", { description: error.message || "Erreur inconnue." });
+            toast.error("Échec du chargement des paiements.", {description: error.message || "Erreur inconnue."});
         } finally {
             setLoading(false);
         }
@@ -111,7 +111,8 @@ const OwnerPaymentsPage: React.FC = () => {
                                         : 'N/A'}
                                 </td>
                                 <td className="py-2 px-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getPaiementStatusClass(paiement.est_paye)}`}>
+                    <span
+                        className={`px-2 py-1 rounded-full text-xs font-semibold ${getPaiementStatusClass(paiement.est_paye)}`}>
                       {paiement.est_paye ? 'Payé' : 'Impayé'}
                     </span>
                                 </td>

@@ -1,29 +1,23 @@
-import React, {useState, useEffect} from 'react';
-import {useAuth} from '../../context/AuthContext';
+import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {authenticatedFetch} from '@/lib/api.ts';
 import {toast} from 'sonner';
 import {HouseDialogForm} from '@/components/house/HouseDialogForm.tsx';
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle
-} from "@/components/ui/card.tsx";
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover.tsx";
 import {EllipsisIcon, SquarePenIcon, TrashIcon} from "lucide-react";
 import {
-    Dialog, DialogClose,
+    Dialog,
+    DialogClose,
     DialogContent,
     DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogTrigger
 } from "@/components/ui/dialog.tsx";
-import HouseDetailsDialog from "@/components/house/HouseDetailsDialog.tsx"; // Assurez-vous que le chemin est correct
+import HouseDetailsDialog from "@/components/house/HouseDetailsDialog.tsx";
+import {useAuth} from "@/context/UseAuth.tsx"; // Assurez-vous que le chemin est correct
 
 interface Maison {
     id: number;

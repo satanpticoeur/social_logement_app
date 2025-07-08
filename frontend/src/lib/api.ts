@@ -53,7 +53,7 @@ export async function authenticatedFetch(endpoint: string, options: RequestInit 
             errorData = await response.json();
         } catch {
             // Si la réponse n'est pas un JSON (ex: erreur HTML du serveur), fournir un message générique
-            errorData = { message: `Erreur HTTP! Statut: ${response.status}` };
+            errorData = {message: `Erreur HTTP! Statut: ${response.status}`};
         }
         // Pour les erreurs 401/403, vous pouvez ajouter une logique de redirection ici si nécessaire
         // if (response.status === 401 || response.status === 403) {

@@ -1,17 +1,6 @@
-import {
-    BoltIcon,
-    BookOpenIcon,
-    Layers2Icon,
-    LogOutIcon,
-    PinIcon,
-    UserPenIcon,
-} from "lucide-react"
+import {BoltIcon, BookOpenIcon, Layers2Icon, LogOutIcon, PinIcon, UserPenIcon,} from "lucide-react"
 
-import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-} from "@/components/ui/avatar"
+import {Avatar, AvatarFallback, AvatarImage,} from "@/components/ui/avatar"
 import {Button} from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -23,6 +12,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {useAuth} from "@/context/AuthContext.tsx";
+
 
 export default function UserMenu() {
 

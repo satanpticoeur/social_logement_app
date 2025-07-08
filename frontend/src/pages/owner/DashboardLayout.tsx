@@ -8,16 +8,12 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import {Separator} from "@/components/ui/separator"
-import {
-    SidebarInset,
-    SidebarProvider,
-    SidebarTrigger,
-} from "@/components/ui/sidebar"
+import {SidebarInset, SidebarProvider, SidebarTrigger,} from "@/components/ui/sidebar"
 import {useEffect, useState} from 'react';
-import {useAuth} from '../../context/AuthContext';
 import {Outlet, useLocation, useNavigate} from 'react-router-dom';
 import {toast} from "sonner";
-import {ThemeToggle} from "@/components/theme/theme-toggle.tsx"; // Votre fonction fetch authentifiée
+import {ThemeToggle} from "@/components/theme/theme-toggle.tsx";
+import {useAuth} from "@/context/AuthContext";
 
 
 export default function DashboardLayoutPage() {
@@ -63,7 +59,7 @@ export default function DashboardLayoutPage() {
 
                                     return (
                                         <div className={"flex gap-3"} key={path}>
-                                            <BreadcrumbItem >
+                                            <BreadcrumbItem>
                                                 <BreadcrumbLink
                                                     asChild
                                                     className={isLast ? 'font-semibold' : ''}
@@ -73,7 +69,8 @@ export default function DashboardLayoutPage() {
                                                     </BreadcrumbPage>
                                                 </BreadcrumbLink>
                                             </BreadcrumbItem>
-                                            {!isLast && <BreadcrumbSeparator key={path + '-sep'}>/</BreadcrumbSeparator>}
+                                            {!isLast &&
+                                                <BreadcrumbSeparator key={path + '-sep'}>/</BreadcrumbSeparator>}
                                         </div>
                                     );
                                 })
@@ -90,5 +87,5 @@ export default function DashboardLayoutPage() {
                 </div>
             </SidebarInset>
         </SidebarProvider>
-)
+    )
 }

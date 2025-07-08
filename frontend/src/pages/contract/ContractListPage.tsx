@@ -1,6 +1,6 @@
 // frontend/src/pages/ContractListPage.tsx
 
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import type {Contrat} from '../../types/common.ts';
 // import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table.tsx';

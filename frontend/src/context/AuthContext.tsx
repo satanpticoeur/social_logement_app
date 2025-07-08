@@ -1,6 +1,6 @@
-import { createContext, useState, useContext, type ReactNode, useEffect, useCallback } from 'react';
-import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+import {createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState} from 'react';
+import {toast} from 'sonner';
+import {useNavigate} from 'react-router-dom';
 
 interface User {
     id: number;
@@ -37,7 +37,7 @@ function getCsrfToken() {
     return null;
 }
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+export const AuthProvider = ({children}: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loadingAuth, setLoadingAuth] = useState<boolean>(true);
     const navigate = useNavigate();
@@ -54,9 +54,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
             if (response.ok) {
                 const data = await response.json();
-                setUser({ id: data.user_id, nom_utilisateur: data.nom_utilisateur, role: data.role, email: data.email });
+                setUser({id: data.user_id, nom_utilisateur: data.nom_utilisateur, role: data.role, email: data.email});
 
-            //     redirect to the home page if the user is authenticated
+                //     redirect to the home page if the user is authenticated
                 if (window.location.pathname === '/login' || window.location.pathname === '/register') {
                     navigate('/');
                 }
@@ -74,17 +74,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     useEffect(() => {
-        (async () => {
-            await checkAuthStatus();
-        })();
-    }, [checkAuthStatus]);
+        checkAuthStatus();
+    }, []);
 
-    const login = async (email: string, password: string) => {
+    const login = useCallback(async (email: string, password: string) => {
         try {
             const response = await fetch(`${BACKEND_URL}/api/login`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, mot_de_passe: password }),
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email, mot_de_passe: password}),
                 credentials: 'include',
             });
 
@@ -94,8 +92,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
             if (response.ok) {
                 console.log("User logged in:", data);
-                setUser({ id: data.user_id, nom_utilisateur: data.nom_utilisateur, role: data.role, email: data.email });
-                toast.success("Connexion réussie", { description: `Bienvenue, ${data.role} !` });
+                setUser({id: data.user_id, nom_utilisateur: data.nom_utilisateur, role: data.role, email: data.email});
+                toast.success("Connexion réussie", {description: `Bienvenue, ${data.role} !`});
                 navigate('/');
             } else {
                 throw new Error(data.message || "Erreur lors de la connexion.");
@@ -103,15 +101,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } catch (error: unknown) {
             console.error("Erreur login:", error);
             const errorMessage = error instanceof Error ? error.message : "Une erreur inattendue est survenue.";
-            toast.error("Échec de la connexion", { description: errorMessage });
+            toast.error("Échec de la connexion", {description: errorMessage});
             throw error;
         }
-    };
+    }, [navigate]);
 
-    const register = async (userData: Record<string, unknown>): Promise<boolean> => {
+    const register = useCallback(async (userData: Record<string, unknown>): Promise<boolean> => {
         try {
             const csrfToken = getCsrfToken();
-            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+            const headers: HeadersInit = {'Content-Type': 'application/json'};
             if (csrfToken) {
                 headers['X-CSRF-TOKEN'] = csrfToken;
             }
@@ -125,7 +123,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
             const data = await response.json();
             if (response.ok) {
-                toast.success("Inscription réussie", { description: data.message });
+                toast.success("Inscription réussie", {description: data.message});
                 return true;
             } else {
                 throw new Error(data.message || "Une erreur est survenue lors de l'inscription.");
@@ -133,12 +131,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } catch (error: unknown) {
             console.error("Erreur inscription:", error);
             const errorMessage = error instanceof Error ? error.message : "Une erreur inattendue est survenue.";
-            toast.error("Échec de l'inscription", { description: errorMessage });
+            toast.error("Échec de l'inscription", {description: errorMessage});
             return false;
         }
-    };
+    }, []);
 
-    const logout = async () => {
+    const logout = useCallback(async () => {
         try {
             const csrfToken = getCsrfToken();
             const headers: HeadersInit = {};
@@ -154,7 +152,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
             if (response.ok) {
                 setUser(null);
-                toast.info("Déconnexion", { description: "Vous avez été déconnecté." });
+                toast.info("Déconnexion", {description: "Vous avez été déconnecté."});
                 navigate('/login');
             } else {
                 throw new Error("Échec de la déconnexion.");
@@ -162,21 +160,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } catch (error: unknown) {
             console.error("Erreur logout:", error);
             const errorMessage = error instanceof Error ? error.message : "Une erreur inattendue est survenue.";
-            toast.error("Erreur de déconnexion", { description: errorMessage });
+            toast.error("Erreur de déconnexion", {description: errorMessage});
         }
-    };
+    }, [navigate]);
 
     const isAuthenticated = !!user;
     const isAdmin = user?.role === 'admin';
     const isProprietaire = user?.role === 'proprietaire';
     const isLocataire = user?.role === 'locataire';
 
+    const authContextValue = useMemo(() => ({
+        user,
+        isAuthenticated,
+        isAdmin,
+        isProprietaire,
+        isLocataire,
+        login,
+        register,
+        logout,
+        checkAuthStatus
+    }), [user, isAuthenticated, isAdmin, isProprietaire, isLocataire, login, register, logout, checkAuthStatus]); // Dépendances importantes
+
+
     if (loadingAuth) {
-        return <div className="flex justify-center items-center h-screen text-lg">Chargement de l'authentification...</div>;
+        return <div className="flex justify-center items-center h-screen text-lg">Chargement de
+            l'authentification...</div>;
     }
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, isProprietaire, isLocataire, login, register, logout, checkAuthStatus }}>
+        <AuthContext.Provider value={authContextValue}>
             {children}
         </AuthContext.Provider>
     );

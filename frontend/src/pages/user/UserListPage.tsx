@@ -1,7 +1,7 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import type {Utilisateur} from '../../types/common.ts'; // Assure-toi que le chemin est correct
 
-export const UserListPage: React.FC = () => {
+const UserListPage: React.FC = () => {
     const [utilisateurs, setUtilisateurs] = useState<Utilisateur[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -58,3 +58,4 @@ export const UserListPage: React.FC = () => {
     );
 };
 
+export default UserListPage;

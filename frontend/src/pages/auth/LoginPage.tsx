@@ -1,18 +1,19 @@
 // frontend/src/pages/LoginPage.tsx
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; // Retiré useNavigate car le contexte le gère
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useAuth } from '@/context/AuthContext';
+import React, {useState} from 'react';
+import {Link} from 'react-router-dom'; // Retiré useNavigate car le contexte le gère
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
+import {Button} from '@/components/ui/button';
+import {Input} from '@/components/ui/input';
+import {Label} from '@/components/ui/label';
+import {useAuth} from "@/context/AuthContext.tsx";
+
 
 const LoginPage: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
-    const { login } = useAuth(); // Utilise la fonction login du contexte
+    const {login} = useAuth(); // Utilise la fonction login du contexte
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();

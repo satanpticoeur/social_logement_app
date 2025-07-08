@@ -1,20 +1,22 @@
-import React, { useState, useEffect, type ReactNode } from 'react';
-import { authenticatedFetch } from '@/lib/api';
-import { toast } from 'sonner';
+import React, {type ReactNode, useEffect, useState} from 'react';
+import {authenticatedFetch} from '@/lib/api';
+import {toast} from 'sonner';
 
 import {
-    Dialog, DialogClose,
+    Dialog,
+    DialogClose,
     DialogContent,
-    DialogDescription, DialogFooter,
+    DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea"; // Pour une description longue si nécessaire
-import { ScrollArea } from "@/components/ui/scroll-area"; // Si le formulaire devient long
+import {Button} from "@/components/ui/button";
+import {Label} from "@/components/ui/label";
+import {Input} from "@/components/ui/input";
+import {Textarea} from "@/components/ui/textarea"; // Pour une description longue si nécessaire
+import {ScrollArea} from "@/components/ui/scroll-area"; // Si le formulaire devient long
 
 // Interface pour une maison (doit correspondre à votre modèle API)
 interface Maison {
@@ -32,7 +34,12 @@ interface HouseDialogFormProps {
     children: ReactNode; // Le bouton/élément qui déclenche l'ouverture du dialogue
 }
 
-export const HouseDialogForm: React.FC<HouseDialogFormProps> = ({ onHouseActionSuccess, houseToEdit, actionType, children }) => {
+export const HouseDialogForm: React.FC<HouseDialogFormProps> = ({
+                                                                    onHouseActionSuccess,
+                                                                    houseToEdit,
+                                                                    actionType,
+                                                                    children
+                                                                }) => {
     const [formData, setFormData] = useState({
         adresse: '',
         ville: '',
@@ -65,7 +72,7 @@ export const HouseDialogForm: React.FC<HouseDialogFormProps> = ({ onHouseActionS
     }, [dialogOpen, isEditing, houseToEdit]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setFormData(prev => ({
             ...prev,
             [name]: value,
@@ -98,7 +105,7 @@ export const HouseDialogForm: React.FC<HouseDialogFormProps> = ({ onHouseActionS
 
         } catch (error: any) {
             console.error(`Erreur lors de ${isEditing ? 'la modification' : 'l\'ajout'} de la maison:`, error);
-            toast.error(`Échec de ${isEditing ? 'la modification' : 'l\'ajout'} de la maison.`, { description: error.message || "Erreur inconnue." });
+            toast.error(`Échec de ${isEditing ? 'la modification' : 'l\'ajout'} de la maison.`, {description: error.message || "Erreur inconnue."});
         } finally {
             setSubmitting(false);
         }
@@ -121,15 +128,19 @@ export const HouseDialogForm: React.FC<HouseDialogFormProps> = ({ onHouseActionS
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <Label htmlFor="adresse" className="text-sm font-medium">Adresse</Label>
-                                <Input type="text" id="adresse" name="adresse" value={formData.adresse} onChange={handleInputChange} required className="mt-1 "/>
+                                <Input type="text" id="adresse" name="adresse" value={formData.adresse}
+                                       onChange={handleInputChange} required className="mt-1 "/>
                             </div>
                             <div>
                                 <Label htmlFor="ville" className="text-sm font-medium">Ville</Label>
-                                <Input type="text" id="ville" name="ville" value={formData.ville} onChange={handleInputChange} required className="mt-1 "/>
+                                <Input type="text" id="ville" name="ville" value={formData.ville}
+                                       onChange={handleInputChange} required className="mt-1 "/>
                             </div>
                             <div>
-                                <Label htmlFor="description" className="text-sm font-medium">Description (optionnel)</Label>
-                                <Textarea id="description" name="description" value={formData.description} onChange={handleInputChange} rows={3} className="mt-1 "></Textarea>
+                                <Label htmlFor="description" className="text-sm font-medium">Description
+                                    (optionnel)</Label>
+                                <Textarea id="description" name="description" value={formData.description}
+                                          onChange={handleInputChange} rows={3} className="mt-1 "></Textarea>
                             </div>
                             {/* Ajoutez d'autres champs si votre modèle de Maison en a */}
                         </form>

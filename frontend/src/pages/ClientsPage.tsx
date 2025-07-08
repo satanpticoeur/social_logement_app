@@ -1,21 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import type {Utilisateur} from '../types/common';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { toast } from 'sonner';
-import { useAuth } from '@/context/AuthContext';
-import { authenticatedFetch } from '@/lib/api';
+import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table';
+import {toast} from 'sonner';
+import {authenticatedFetch} from '@/lib/api';
+import {useAuth} from "@/context/AuthContext.tsx";
 
 const ClientsPage: React.FC = () => {
     const [clients, setClients] = useState<Utilisateur[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const { user } = useAuth(); // On utilise user pour un affichage conditionnel si nécessaire, mais plus le token
+    const {isAuthenticated} = useAuth();
 
     useEffect(() => {
         const fetchClients = async () => {
             try {
-                // Pas besoin de passer le token ici, le navigateur le fera via le cookie
                 const data: Utilisateur[] = await authenticatedFetch('/locataires');
                 setClients(data);
             } catch (err: any) {
@@ -29,17 +28,13 @@ const ClientsPage: React.FC = () => {
             }
         };
 
-        // On vérifie que l'utilisateur est bien connecté (le user object est peuplé)
-        // avant de tenter de fetch les clients, car cette route est protégée par PrivateRoute
-        if (user) {
+        if (isAuthenticated) {
             fetchClients();
         } else {
-            // Si user est null (non authentifié), PrivateRoute aurait déjà redirigé.
-            // Ce else-block ne devrait pas être atteint en pratique si PrivateRoute fonctionne.
             setLoading(false);
             setError("Non authentifié.");
         }
-    }, [user]); // Déclenche le useEffect quand l'objet user change (connexion/déconnexion)
+    }, [isAuthenticated]);
 
     if (loading) {
         return <div className="text-center mt-10 text-muted-foreground">Chargement des clients...</div>;

@@ -1,8 +1,8 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import type {ChambreDetails} from '../types/common';
 import RoomDetailsDialog from "@/components/room/RoomDetailsDialog.tsx";
 
-export const RoomListPage: React.FC = () => {
+const RoomListPage: React.FC = () => {
     const [chambres, setChambres] = useState<ChambreDetails[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -100,3 +100,4 @@ export const RoomListPage: React.FC = () => {
     );
 };
 
+export default RoomListPage;

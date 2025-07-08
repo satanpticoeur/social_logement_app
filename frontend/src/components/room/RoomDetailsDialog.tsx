@@ -5,9 +5,9 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogTrigger // Toujours utile si le déclencheur est encapsulé
+    DialogTrigger
 } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import {ScrollArea} from "@/components/ui/scroll-area";
 import {EyeIcon} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 
@@ -45,7 +45,7 @@ interface RoomDetailsDialogProps {
     chambre: ChambreDetails; // La chambre dont on veut afficher les détails
 }
 
-const RoomDetailsDialog: React.FC<RoomDetailsDialogProps> = ({ chambre }) => {
+const RoomDetailsDialog: React.FC<RoomDetailsDialogProps> = ({chambre}) => {
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -92,20 +92,27 @@ const RoomDetailsDialog: React.FC<RoomDetailsDialogProps> = ({ chambre }) => {
                         </div>
                         <div className="grid grid-cols-3 items-center gap-4">
                             <span className="text-sm font-medium text-gray-700">Prix:</span>
-                            <span className="col-span-2 text-sm font-bold">{chambre.prix.toLocaleString('fr-SN', { style: 'currency', currency: 'XOF' })}</span>
+                            <span className="col-span-2 text-sm font-bold">{chambre.prix.toLocaleString('fr-SN', {
+                                style: 'currency',
+                                currency: 'XOF'
+                            })}</span>
                         </div>
                         <div className="grid grid-cols-3 items-center gap-4">
                             <span className="text-sm font-medium text-gray-700">Disponibilité:</span>
-                            <span className="col-span-2 text-sm">{chambre.disponible ? 'Disponible' : 'Non disponible'}</span>
+                            <span
+                                className="col-span-2 text-sm">{chambre.disponible ? 'Disponible' : 'Non disponible'}</span>
                         </div>
 
                         {chambre.contrats_actifs && chambre.contrats_actifs.length > 0 && (
                             <div className="mt-4 border-t pt-3">
                                 <h4 className="text-md font-semibold text-gray-800 mb-2">Contrats Actifs :</h4>
                                 {chambre.contrats_actifs.map(contrat => (
-                                    <div key={contrat.contrat_id} className="text-sm text-gray-700 mb-1 pl-2 border-l-2 border-gray-200">
-                                        <p>Locataire: <span className="font-medium">{contrat.locataire_nom_utilisateur}</span></p>
-                                        <p>Du: <span className="font-medium">{contrat.date_debut}</span> Au: <span className="font-medium">{contrat.date_fin}</span></p>
+                                    <div key={contrat.contrat_id}
+                                         className="text-sm text-gray-700 mb-1 pl-2 border-l-2 border-gray-200">
+                                        <p>Locataire: <span
+                                            className="font-medium">{contrat.locataire_nom_utilisateur}</span></p>
+                                        <p>Du: <span className="font-medium">{contrat.date_debut}</span> Au: <span
+                                            className="font-medium">{contrat.date_fin}</span></p>
                                         <p>Statut: <span className="font-medium">{contrat.statut}</span></p>
                                     </div>
                                 ))}
@@ -118,10 +125,11 @@ const RoomDetailsDialog: React.FC<RoomDetailsDialogProps> = ({ chambre }) => {
                                     {chambre.medias.map(media => (
                                         <div key={media.id} className="relative">
                                             {media.type.startsWith('photo') ? (
-                                                <img src={media.url} alt={`Media ${media.id}`} className="w-full h-auto rounded-md" />
+                                                <img src={media.url} alt={`Media ${media.id}`}
+                                                     className="w-full h-auto rounded-md"/>
                                             ) : (
                                                 <video controls className="w-full h-auto rounded-md">
-                                                    <source src={media.url} type={media.type} />
+                                                    <source src={media.url} type={media.type}/>
                                                     Votre navigateur ne supporte pas la vidéo.
                                                 </video>
                                             )}

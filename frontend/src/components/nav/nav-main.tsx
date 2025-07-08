@@ -1,4 +1,4 @@
-import {IconCirclePlusFilled, type Icon} from "@tabler/icons-react"
+import {type Icon, IconCirclePlusFilled} from "@tabler/icons-react"
 
 import {
     SidebarGroup,
@@ -36,7 +36,7 @@ export function NavMain({
                 <SidebarMenu>
                     {items.map((item) => (
                         <SidebarMenuItem key={item.title} className={
-                            `/owner/dashboard/${item.url}` === window.location.pathname +'/' ||  `/owner/dashboard/${item.url}` === window.location.pathname ? 'bg-secondary text-secondary-foreground' : ''
+                            `/owner/dashboard/${item.url}` === window.location.pathname + '/' || `/owner/dashboard/${item.url}` === window.location.pathname ? 'bg-secondary text-secondary-foreground' : ''
                         }>
                             <Link to={item.url}>
                                 <SidebarMenuButton tooltip={item.title}>

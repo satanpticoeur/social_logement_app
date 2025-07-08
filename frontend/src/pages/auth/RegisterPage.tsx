@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useAuth } from '@/context/AuthContext'; // Importe useAuth
+import React, {useState} from 'react';
+import {Link, useNavigate} from 'react-router-dom';
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
+import {Button} from '@/components/ui/button';
+import {Input} from '@/components/ui/input';
+import {Label} from '@/components/ui/label';
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
+import {useAuth} from "@/context/AuthContext.tsx";
+
 
 const RegisterPage: React.FC = () => {
     const [username, setUsername] = useState<string>('');
@@ -16,7 +17,7 @@ const RegisterPage: React.FC = () => {
     const [role, setRole] = useState<string>('locataire');
     const [loading, setLoading] = useState<boolean>(false);
     const navigate = useNavigate();
-    const { register } = useAuth(); // Utilise la fonction register du contexte
+    const {register} = useAuth(); // Utilise la fonction register du contexte
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -109,7 +110,7 @@ const RegisterPage: React.FC = () => {
                             <Label htmlFor="role">Je suis un(e)</Label>
                             <Select value={role} onValueChange={setRole}>
                                 <SelectTrigger id="role">
-                                    <SelectValue placeholder="Sélectionnez un rôle" />
+                                    <SelectValue placeholder="Sélectionnez un rôle"/>
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="locataire">Locataire</SelectItem>

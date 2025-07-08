@@ -1,9 +1,8 @@
-
 import {useEffect, useState} from 'react';
-import {useAuth} from '../../context/AuthContext';
 import {useNavigate} from 'react-router-dom';
 import {authenticatedFetch} from '@/lib/api.ts'; // Votre fonction fetch authentifiée
 import {toast} from 'sonner';
+import {useAuth} from "@/context/UseAuth.tsx";
 
 interface DashboardSummary {
     total_paye: number;
@@ -17,7 +16,6 @@ export default function Page() {
     const navigate = useNavigate();
     const [summary, setSummary] = useState<DashboardSummary | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
-
 
 
     useEffect(() => {

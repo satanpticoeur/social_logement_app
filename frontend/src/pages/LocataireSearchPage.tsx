@@ -1,9 +1,9 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {authenticatedFetch} from '@/lib/api'; // Utilisez authenticatedFetch si la recherche nécessite une auth
 import {toast} from 'sonner';
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
-import {Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter} from "@/components/ui/card";
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 import {Badge} from "@/components/ui/badge";
 import {Link} from 'react-router-dom'; // Pour naviguer vers les détails de la chambre
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";

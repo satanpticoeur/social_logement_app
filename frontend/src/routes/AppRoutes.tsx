@@ -1,0 +1,31 @@
+import React, { Suspense } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import { HomePage } from '@/pages/HomePage';
+import {LandingPage} from "@/pages/LandingPage.tsx";
+import LoginPage from "@/pages/auth/LoginPage.tsx";
+import RegisterPage from "@/pages/auth/RegisterPage.tsx";
+import RoomListPage from "@/pages/RoomListPage.tsx";
+
+const LocataireRoutes = React.lazy(() => import('./LocataireRoutes'));
+const ProprietaireRoutes = React.lazy(() => import('./OwnerRoutes.tsx'));
+
+export const AppRoutes: React.FC = () => {
+    return (
+        <Suspense fallback={<div>Chargement de la page...</div>}>
+            <Routes>
+                <Route path="/" element={<HomePage />}>
+                    <Route index element={<LandingPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
+
+                    <Route path="/locataire/*" element={<LocataireRoutes />} />
+                    <Route path="/owner/dashboard/*" element={<ProprietaireRoutes />} />
+
+                    <Route path="/rooms" element={ <RoomListPage /> } />
+                </Route>
+
+                <Route path="*" element={<h1 className="text-center text-3xl mt-10"> 404 - Page non trouvée</h1>} />
+            </Routes>
+        </Suspense>
+    );
+};

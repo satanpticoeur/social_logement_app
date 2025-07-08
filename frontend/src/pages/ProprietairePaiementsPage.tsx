@@ -1,11 +1,11 @@
 // src/pages/ProprietairePaiementsPage.tsx
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { authenticatedFetch } from '@/lib/api';
-import { toast } from 'sonner';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import React, {useEffect, useState} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
+import {authenticatedFetch} from '@/lib/api';
+import {toast} from 'sonner';
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
+import {Badge} from "@/components/ui/badge";
+import {Button} from "@/components/ui/button";
 
 interface Paiement {
     id: number;
@@ -18,12 +18,12 @@ interface Paiement {
 }
 
 const ProprietairePaiementsPage: React.FC = () => {
-    const { id } = useParams();
+    const {id} = useParams();
     const contratId = id || '';
     const navigate = useNavigate();
     const [paiements, setPaiements] = useState<Paiement[]>([]);
     const [loading, setLoading] = useState(true);
-    const [contratInfo, setContratInfo] = useState({ chambreTitre: '', locataireNom: '' }); // Pour le titre de la page
+    const [contratInfo, setContratInfo] = useState({chambreTitre: '', locataireNom: ''}); // Pour le titre de la page
 
     useEffect(() => {
         if (contratId) {
@@ -38,7 +38,7 @@ const ProprietairePaiementsPage: React.FC = () => {
             // Endpoint à créer si vous n'avez pas de route PUT /proprietaire/contrats/<id>
             // Pour l'instant, on se base sur les infos disponibles dans le `get_proprietaire_contrats`
             // ou on pourrait créer un endpoint spécifique: `proprietaire/contrats/<id>`
-            const data = await authenticatedFetch(`proprietaire/contrats`, { method: 'GET', credentials: "include" });
+            const data = await authenticatedFetch(`proprietaire/contrats`, {method: 'GET', credentials: "include"});
             const currentContrat = data.find((c: any) => c.id === id);
             if (currentContrat) {
                 setContratInfo({
@@ -54,13 +54,16 @@ const ProprietairePaiementsPage: React.FC = () => {
     const fetchPaiements = async () => {
         setLoading(true);
         try {
-            const data: Paiement[] = await authenticatedFetch(`proprietaire/contrats/${contratId}/paiements`, { method: 'GET', credentials: "include" });
+            const data: Paiement[] = await authenticatedFetch(`proprietaire/contrats/${contratId}/paiements`, {
+                method: 'GET',
+                credentials: "include"
+            });
             setPaiements(data);
             console.log("Paiements chargés:", data);
             toast.success(`${data.length} paiements chargés.`);
         } catch (error: any) {
             console.error('Erreur lors du chargement des paiements:', error);
-            toast.error("Échec du chargement des paiements.", { description: error.message || "Erreur inconnue." });
+            toast.error("Échec du chargement des paiements.", {description: error.message || "Erreur inconnue."});
             // navigate('/proprietaire/contrats'); // Rediriger en cas d'erreur
         } finally {
             setLoading(false);
@@ -72,21 +75,25 @@ const ProprietairePaiementsPage: React.FC = () => {
             return;
         }
         try {
-            await authenticatedFetch(`proprietaire/paiements/${paiementId}/marquer_paye`, { method: 'PUT' });
+            await authenticatedFetch(`proprietaire/paiements/${paiementId}/marquer_paye`, {method: 'PUT'});
             toast.success("Paiement marqué comme payé !");
             fetchPaiements(); // Recharger la liste pour mettre à jour le statut
         } catch (error: any) {
             console.error('Erreur lors du marquage du paiement:', error);
-            toast.error("Échec du marquage du paiement.", { description: error.message || "Erreur inconnue." });
+            toast.error("Échec du marquage du paiement.", {description: error.message || "Erreur inconnue."});
         }
     };
 
     const getStatusBadgeVariant = (status: string) => {
         switch (status) {
-            case 'payé': return 'default';
-            case 'impayé': return 'destructive';
-            case 'partiel': return 'secondary';
-            default: return 'outline';
+            case 'payé':
+                return 'default';
+            case 'impayé':
+                return 'destructive';
+            case 'partiel':
+                return 'secondary';
+            default:
+                return 'outline';
         }
     };
 
@@ -113,12 +120,16 @@ const ProprietairePaiementsPage: React.FC = () => {
                                 <CardDescription>Échéance: {new Date(paiement.date_echeance).toLocaleDateString('fr-FR')}</CardDescription>
                             </CardHeader>
                             <CardContent className="flex-grow">
-                                <p className="mb-2"><strong>Statut:</strong> <Badge variant={getStatusBadgeVariant(paiement.statut)} className="ml-2">{paiement.statut}</Badge></p>
+                                <p className="mb-2"><strong>Statut:</strong> <Badge
+                                    variant={getStatusBadgeVariant(paiement.statut)}
+                                    className="ml-2">{paiement.statut}</Badge></p>
                                 {paiement.date_paiement && (
-                                    <p className="mb-1"><strong>Payé le:</strong> {new Date(paiement.date_paiement).toLocaleDateString('fr-FR')}</p>
+                                    <p className="mb-1"><strong>Payé
+                                        le:</strong> {new Date(paiement.date_paiement).toLocaleDateString('fr-FR')}</p>
                                 )}
                                 {paiement.description && (
-                                    <p className="mt-2 text-sm text-gray-600"><strong>Description:</strong> "{paiement.description}"</p>
+                                    <p className="mt-2 text-sm text-gray-600">
+                                        <strong>Description:</strong> "{paiement.description}"</p>
                                 )}
                             </CardContent>
                             <CardFooter className="flex justify-end">

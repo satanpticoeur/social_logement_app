@@ -5,7 +5,8 @@ import {Link} from 'react-router-dom';
 export const LandingPage: React.FC = () => {
     return (
         <>
-            <div className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] py-12 px-4 sm:px-6 lg:px-8 bg-background text-foreground"> {/* Utilise bg-background et text-foreground */}
+            <div
+                className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] py-12 px-4 sm:px-6 lg:px-8 bg-background text-foreground"> {/* Utilise bg-background et text-foreground */}
 
                 {/* Section Hero */}
                 <section className="text-center max-w-4xl mb-12">

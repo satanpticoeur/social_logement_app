@@ -1,8 +1,4 @@
-import {
-    BookUserIcon,
-    DoorOpenIcon, HandCoinsIcon,
-    HouseIcon, LayoutDashboardIcon,
-} from "lucide-react"
+import {BookUserIcon, DoorOpenIcon, HandCoinsIcon, HouseIcon, LayoutDashboardIcon,} from "lucide-react"
 
 import Logo from "@/components/logo"
 import {ThemeToggle} from "@/components/theme/theme-toggle.tsx"
@@ -14,20 +10,11 @@ import {
     NavigationMenuLink,
     NavigationMenuList,
 } from "@/components/ui/navigation-menu"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
+import {Popover, PopoverContent, PopoverTrigger,} from "@/components/ui/popover"
 
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/components/ui/tooltip"
-import {useAuth} from "@/context/AuthContext.tsx";
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,} from "@/components/ui/tooltip"
 import {Link} from "react-router-dom";
+import {useAuth} from "@/context/AuthContext.tsx";
 
 // Navigation links with icons for desktop icon-only navigation
 const navigationLinks = [
@@ -122,25 +109,25 @@ export function Navbar() {
                                         <TooltipProvider>
                                             {navigationLinks.map((link) => (
                                                 link.label === "dashboard" && !isProprietaire ? null :
-                                                <NavigationMenuItem key={link.label}>
-                                                    <Tooltip>
-                                                        <TooltipTrigger asChild>
-                                                            <NavigationMenuLink
-                                                                href={link.href}
-                                                                className="flex size-8 items-center justify-center p-1.5"
+                                                    <NavigationMenuItem key={link.label}>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <NavigationMenuLink
+                                                                    href={link.href}
+                                                                    className="flex size-8 items-center justify-center p-1.5"
+                                                                >
+                                                                    <link.icon size={20} aria-hidden="true"/>
+                                                                    <span className="sr-only">{link.label}</span>
+                                                                </NavigationMenuLink>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent
+                                                                side="bottom"
+                                                                className="px-2 py-1 text-xs"
                                                             >
-                                                                <link.icon size={20} aria-hidden="true"/>
-                                                                <span className="sr-only">{link.label}</span>
-                                                            </NavigationMenuLink>
-                                                        </TooltipTrigger>
-                                                        <TooltipContent
-                                                            side="bottom"
-                                                            className="px-2 py-1 text-xs"
-                                                        >
-                                                            <p>{link.label}</p>
-                                                        </TooltipContent>
-                                                    </Tooltip>
-                                                </NavigationMenuItem>
+                                                                <p>{link.label}</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </NavigationMenuItem>
                                             ))}
                                         </TooltipProvider>
                                     </NavigationMenuList>

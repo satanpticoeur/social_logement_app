@@ -1,11 +1,13 @@
-import React, {useState, useEffect, type ReactNode} from 'react';
+import React, {type ReactNode, useEffect, useState} from 'react';
 import {authenticatedFetch} from '@/lib/api'; // On va s'assurer que cette fonction gère bien le FormData
 import {toast} from 'sonner';
 
 import {
-    Dialog, DialogClose,
+    Dialog,
+    DialogClose,
     DialogContent,
-    DialogDescription, DialogFooter,
+    DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger

@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import {useAuth} from '../../context/AuthContext';
 import {useNavigate} from 'react-router-dom';
 import {authenticatedFetch} from '@/lib/api.ts';
 import {toast} from 'sonner';
@@ -10,13 +9,15 @@ import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover.t
 import {EllipsisIcon, SquarePenIcon, TrashIcon} from "lucide-react";
 import RoomDetailsDialog from "@/components/room/RoomDetailsDialog.tsx";
 import {
-    Dialog, DialogClose,
+    Dialog,
+    DialogClose,
     DialogContent,
     DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogTrigger
 } from "@/components/ui/dialog.tsx";
+import {useAuth} from "@/context/UseAuth.tsx";
 
 interface Chambre {
     id: number;

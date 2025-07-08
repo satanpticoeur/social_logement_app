@@ -7,8 +7,8 @@ import {
     DialogTitle,
     DialogTrigger
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import {Button} from "@/components/ui/button";
+import {ScrollArea} from "@/components/ui/scroll-area";
 import {EyeIcon} from "lucide-react";
 
 // Interface pour les détails de maison (doit correspondre à votre modèle API)
@@ -31,7 +31,7 @@ interface HouseDetailsDialogProps {
     maison: MaisonDetails; // La maison dont on veut afficher les détails
 }
 
-const HouseDetailsDialog: React.FC<HouseDetailsDialogProps> = ({ maison }) => {
+const HouseDetailsDialog: React.FC<HouseDetailsDialogProps> = ({maison}) => {
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -69,10 +69,15 @@ const HouseDetailsDialog: React.FC<HouseDetailsDialogProps> = ({ maison }) => {
                             <div className="mt-4 border-t pt-3">
                                 <h4 className="text-md font-semibold text-gray-800 mb-2">Chambres associées :</h4>
                                 {maison.chambres.map(chambre => (
-                                    <div key={chambre.id} className="text-sm text-gray-700 mb-1 pl-2 border-l-2 border-gray-200">
+                                    <div key={chambre.id}
+                                         className="text-sm text-gray-700 mb-1 pl-2 border-l-2 border-gray-200">
                                         <p>Titre: <span className="font-medium">{chambre.titre}</span></p>
-                                        <p>Prix: <span className="font-medium">{chambre.prix.toLocaleString('fr-SN', { style: 'currency', currency: 'XOF' })}</span></p>
-                                        <p>Disponible: <span className="font-medium">{chambre.disponible ? 'Oui' : 'Non'}</span></p>
+                                        <p>Prix: <span className="font-medium">{chambre.prix.toLocaleString('fr-SN', {
+                                            style: 'currency',
+                                            currency: 'XOF'
+                                        })}</span></p>
+                                        <p>Disponible: <span
+                                            className="font-medium">{chambre.disponible ? 'Oui' : 'Non'}</span></p>
                                     </div>
                                 ))}
                             </div>

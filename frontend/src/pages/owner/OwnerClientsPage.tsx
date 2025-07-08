@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {useAuth} from '../../context/AuthContext';
 import {useNavigate} from 'react-router-dom';
 import {authenticatedFetch} from '@/lib/api.ts';
 import {toast} from 'sonner';
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx";
+import {useAuth} from "@/context/UseAuth.tsx";
 
 interface Client {
     cni: string

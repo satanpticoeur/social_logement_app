@@ -1,11 +1,11 @@
 // src/pages/LocatairePaiementsPage.tsx
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { authenticatedFetch } from '@/lib/api';
-import { toast } from 'sonner';
-import {Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import React, {useEffect, useState} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
+import {authenticatedFetch} from '@/lib/api';
+import {toast} from 'sonner';
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
+import {Badge} from "@/components/ui/badge";
+import {Button} from "@/components/ui/button";
 
 interface Paiement {
     id: number;
@@ -18,11 +18,11 @@ interface Paiement {
 }
 
 const LocatairePaiementsPage: React.FC = () => {
-    const { contratId } = useParams<{ contratId: string }>();
+    const {contratId} = useParams<{ contratId: string }>();
     const navigate = useNavigate();
     const [paiements, setPaiements] = useState<Paiement[]>([]);
     const [loading, setLoading] = useState(true);
-    const [contratInfo, setContratInfo] = useState({ chambreTitre: '', chambreAdresse: '' });
+    const [contratInfo, setContratInfo] = useState({chambreTitre: '', chambreAdresse: ''});
 
 
     useEffect(() => {
@@ -35,7 +35,7 @@ const LocatairePaiementsPage: React.FC = () => {
     const fetchContratInfo = async (id: number) => {
         try {
             // Utiliser l'endpoint de détails de contrat pour récupérer les infos
-            const data = await authenticatedFetch(`locataire/contrats/${id}`, { method: 'GET' });
+            const data = await authenticatedFetch(`locataire/contrats/${id}`, {method: 'GET'});
             setContratInfo({
                 chambreTitre: data.chambre_titre,
                 chambreAdresse: data.chambre_adresse
@@ -60,12 +60,12 @@ const LocatairePaiementsPage: React.FC = () => {
             // qui serait similaire à celui du propriétaire.
 
             // Pour l'exemple, supposons que nous avons cet endpoint:
-            const data: Paiement[] = await authenticatedFetch(`locataire/contrats/${contratId}/paiements`, { method: 'GET' });
+            const data: Paiement[] = await authenticatedFetch(`locataire/contrats/${contratId}/paiements`, {method: 'GET'});
             setPaiements(data);
             toast.success(`${data.length} paiements chargés.`);
         } catch (error: any) {
             console.error('Erreur lors du chargement des paiements:', error);
-            toast.error("Échec du chargement des paiements.", { description: error.message || "Erreur inconnue." });
+            toast.error("Échec du chargement des paiements.", {description: error.message || "Erreur inconnue."});
             // navigate('/locataire/contrats'); // Rediriger en cas d'erreur
         } finally {
             setLoading(false);
@@ -74,10 +74,14 @@ const LocatairePaiementsPage: React.FC = () => {
 
     const getStatusBadgeVariant = (status: string) => {
         switch (status) {
-            case 'payé': return 'default';
-            case 'impayé': return 'destructive';
-            case 'partiel': return 'secondary';
-            default: return 'outline';
+            case 'payé':
+                return 'default';
+            case 'impayé':
+                return 'destructive';
+            case 'partiel':
+                return 'secondary';
+            default:
+                return 'outline';
         }
     };
 
@@ -104,12 +108,16 @@ const LocatairePaiementsPage: React.FC = () => {
                                 <CardDescription>Échéance: {new Date(paiement.date_echeance).toLocaleDateString('fr-FR')}</CardDescription>
                             </CardHeader>
                             <CardContent className="flex-grow">
-                                <p className="mb-2"><strong>Statut:</strong> <Badge variant={getStatusBadgeVariant(paiement.statut)} className="ml-2">{paiement.statut}</Badge></p>
+                                <p className="mb-2"><strong>Statut:</strong> <Badge
+                                    variant={getStatusBadgeVariant(paiement.statut)}
+                                    className="ml-2">{paiement.statut}</Badge></p>
                                 {paiement.date_paiement && (
-                                    <p className="mb-1"><strong>Payé le:</strong> {new Date(paiement.date_paiement).toLocaleDateString('fr-FR')}</p>
+                                    <p className="mb-1"><strong>Payé
+                                        le:</strong> {new Date(paiement.date_paiement).toLocaleDateString('fr-FR')}</p>
                                 )}
                                 {paiement.description && (
-                                    <p className="mt-2 text-sm text-gray-600"><strong>Description:</strong> "{paiement.description}"</p>
+                                    <p className="mt-2 text-sm text-gray-600">
+                                        <strong>Description:</strong> "{paiement.description}"</p>
                                 )}
                             </CardContent>
                             <CardFooter className="flex justify-end">

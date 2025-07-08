@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import type {Contrat, Paiement} from '@/types/common.ts';
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
@@ -18,9 +18,9 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogFooter,
 } from "@/components/ui/dialog";
 import {CalendarIcon, PencilIcon, TrashIcon} from "lucide-react";
 

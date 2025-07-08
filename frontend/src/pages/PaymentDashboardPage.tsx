@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import type {Paiement} from '../types/common';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table';
 
 const PaymentDashboardPage: React.FC = () => {
     const [paiements, setPaiements] = useState<Paiement[]>([]);
@@ -30,7 +30,7 @@ const PaymentDashboardPage: React.FC = () => {
     }, [BACKEND_URL]);
 
     // Calcul des totaux et agrégations
-    const { totalPaid, totalUnpaid, countPaid, countUnpaid } = useMemo(() => {
+    const {totalPaid, totalUnpaid, countPaid, countUnpaid} = useMemo(() => {
         let paid = 0;
         let unpaid = 0;
         let cPaid = 0;
@@ -47,7 +47,7 @@ const PaymentDashboardPage: React.FC = () => {
             // Ignorer 'partiel' pour l'instant ou le gérer différemment
         });
 
-        return { totalPaid: paid, totalUnpaid: unpaid, countPaid: cPaid, countUnpaid: cUnpaid };
+        return {totalPaid: paid, totalUnpaid: unpaid, countPaid: cPaid, countUnpaid: cUnpaid};
     }, [paiements]);
 
     if (error) {
@@ -77,7 +77,7 @@ const PaymentDashboardPage: React.FC = () => {
                                     strokeWidth="2"
                                     className="h-4 w-4 text-muted-foreground"
                                 >
-                                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
                                 </svg>
                             </CardHeader>
                             <CardContent>
@@ -101,9 +101,9 @@ const PaymentDashboardPage: React.FC = () => {
                                     strokeWidth="2"
                                     className="h-4 w-4 text-muted-foreground"
                                 >
-                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                                    <circle cx="9" cy="7" r="4" />
-                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
                                 </svg>
                             </CardHeader>
                             <CardContent>
@@ -118,7 +118,8 @@ const PaymentDashboardPage: React.FC = () => {
                     {/* Liste des Paiements */}
                     <h2 className="text-2xl font-bold mb-4 text-foreground text-center">Détails des Paiements</h2>
                     {paiements.length > 0 ? (
-                        <div className="bg-card rounded-lg shadow-md overflow-hidden border border-border max-w-6xl mx-auto">
+                        <div
+                            className="bg-card rounded-lg shadow-md overflow-hidden border border-border max-w-6xl mx-auto">
                             <Table>
                                 <TableHeader>
                                     <TableRow>
@@ -139,13 +140,14 @@ const PaymentDashboardPage: React.FC = () => {
                                             <TableCell>{paiement.montant.toLocaleString()} XOF</TableCell>
                                             <TableCell>{new Date(paiement.date_paiement).toLocaleDateString()}</TableCell>
                                             <TableCell>
-                        <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
-                            paiement.statut === 'payé'
-                                ? 'bg-green-50 text-green-700 ring-green-600/20 dark:bg-green-900 dark:text-green-200 dark:ring-green-700/30'
-                                : paiement.statut === 'impayé'
-                                    ? 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-900 dark:text-red-200 dark:ring-red-700/30'
-                                    : 'bg-yellow-50 text-yellow-700 ring-yellow-600/20 dark:bg-yellow-900 dark:text-yellow-200 dark:ring-yellow-700/30'
-                        }`}>
+                        <span
+                            className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
+                                paiement.statut === 'payé'
+                                    ? 'bg-green-50 text-green-700 ring-green-600/20 dark:bg-green-900 dark:text-green-200 dark:ring-green-700/30'
+                                    : paiement.statut === 'impayé'
+                                        ? 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-900 dark:text-red-200 dark:ring-red-700/30'
+                                        : 'bg-yellow-50 text-yellow-700 ring-yellow-600/20 dark:bg-yellow-900 dark:text-yellow-200 dark:ring-yellow-700/30'
+                            }`}>
                           {paiement.statut}
                         </span>
                                             </TableCell>

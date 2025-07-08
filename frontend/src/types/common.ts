@@ -73,6 +73,7 @@ export interface ChambreDetails {
         description?: string;
     }>;
 }
+
 // frontend/src/types/common.ts
 
 // ... (autres interfaces) ...

@@ -4,7 +4,7 @@ import React from 'react';
 import ContractForm from '../../components/forms/ContractForm.tsx';
 
 const ContractCreatePage: React.FC = () => {
-    return <ContractForm />;
+    return <ContractForm/>;
 };
 
 export default ContractCreatePage;

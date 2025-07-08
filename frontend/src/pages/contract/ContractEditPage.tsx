@@ -1,12 +1,12 @@
 // frontend/src/pages/ContractEditPage.tsx
 
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {useParams} from 'react-router-dom';
 import ContractForm from '../../components/forms/ContractForm.tsx';
 import type {Contrat} from '../../types/common.ts';
 
 const ContractEditPage: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
+    const {id} = useParams<{ id: string }>();
     const [contrat, setContrat] = useState<Contrat | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -42,7 +42,8 @@ const ContractEditPage: React.FC = () => {
     }, [id, BACKEND_URL]);
 
     if (loading) {
-        return <div className="text-center mt-10 text-muted-foreground">Chargement du contrat pour modification...</div>;
+        return <div className="text-center mt-10 text-muted-foreground">Chargement du contrat pour
+            modification...</div>;
     }
 
     if (error) {
@@ -53,7 +54,7 @@ const ContractEditPage: React.FC = () => {
         return <div className="text-center mt-10 text-muted-foreground">Contrat non disponible pour modification.</div>;
     }
 
-    return <ContractForm contratToEdit={contrat} />;
+    return <ContractForm contratToEdit={contrat}/>;
 };
 
 export default ContractEditPage;
