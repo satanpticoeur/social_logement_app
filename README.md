@@ -129,7 +129,7 @@ Créez deux fichiers `.env` distincts :
 2.  **`frontend/.env`** (pour l'application React) :
     ```
     # URL de base de l'API Flask
-    VITE_API_BACKEND_URL=http://localhost:5000
+    VITE_BACKEND_URL=http://localhost:5000
     ```
 
 ## 5. Lancement de l'Application
@@ -147,8 +147,6 @@ Pour lancer l'application complète (backend et frontend) pour le développement
     flask db upgrade
     flask run -- host 0.0.0.0 --debug # pour lancer l'application en mode debug (rafraichissement à chaud...)
     ```
-
-    L'API sera accessible sur `http://127.0.0.1:5000`.
 
 2.  **Lancez le Frontend (Application React) :**
     Ouvrez un second terminal à la racine du projet.
