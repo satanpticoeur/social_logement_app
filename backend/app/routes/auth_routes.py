@@ -51,13 +51,10 @@ def login():
     email = data.get('email')
     mot_de_passe = data.get('mot_de_passe')
 
-    print(f"DEBUG: [LOGIN] Request received for email: {email}")
     if not email or not mot_de_passe:
-        print("DEBUG: [LOGIN] Missing email or password. Returning 400.")
         return jsonify({"message": "Email et mot de passe sont requis."}), 400
 
     user = Utilisateur.query.filter_by(email=email).first()
-    print(f"DEBUG: [LOGIN] User found: {user is not None}")
 
     if not user:
         print(f"DEBUG: [LOGIN] User not found for email: {email}. Returning 401.")
@@ -67,10 +64,6 @@ def login():
         print(f"DEBUG: [LOGIN] Password mismatch for user: {email}. Returning 401.")
         return jsonify({"message": "Email ou mot de passe incorrect."}), 401
 
-    print(f"DEBUG: [LOGIN] User {email} authenticated successfully. Proceeding to token generation.")
-
-    # >>> LA MODIFICATION CRUCIALE EST ICI <<<
-    # Sérialisez l'identité en JSON string avant de la passer à create_access_token
     user_identity_data = {"id": user.id, "role": user.role, "email": user.email,
                           "nom_utilisateur": user.nom_utilisateur}
     json_identity_string = json.dumps(user_identity_data)  # Convertit le dict en string JSON
@@ -80,9 +73,7 @@ def login():
             identity=json_identity_string,  # Passe la string JSON comme identité
             expires_delta=timedelta(hours=24)
         )
-        print(f"DEBUG: [LOGIN] Access Token generated (first 30 chars): {access_token[:30]}...")
     except Exception as e:
-        print(f"ERROR: [LOGIN] Failed to create access token: {e}")
         return jsonify({"message": "Internal server error during token creation."}), 500
 
     response_data = {
@@ -94,14 +85,11 @@ def login():
     }
 
     response = jsonify(response_data)
-    print(f"DEBUG: [LOGIN] Flask response object created.")
 
     try:
         set_access_cookies(response, access_token)
-        print(f"DEBUG: [LOGIN] set_access_cookies called successfully.")
 
         # Vérification des headers pour débogage
-        print(f"DEBUG: [LOGIN] Response headers after set_access_cookies: {response.headers}")
         if 'Set-Cookie' in str(response.headers):
             print("DEBUG: [LOGIN] 'Set-Cookie' header IS present in response object.")
         else:
@@ -111,7 +99,6 @@ def login():
         print(f"ERROR: [LOGIN] Failed to set access cookies: {e}")
         return jsonify({"message": "Internal server error during cookie setting."}), 500
 
-    print(f"DEBUG: [LOGIN] Returning response with status 200.")
     return response, 200
 
 

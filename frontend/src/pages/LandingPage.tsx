@@ -18,7 +18,7 @@ export const LandingPage: React.FC = () => {
                         propriétaire ou locataire, notre plateforme est conçue pour vous.
                     </p>
                     <div className="mt-8 flex justify-center space-x-4">
-                        <Link to="/rooms">
+                        <Link to="/locataire/search">
                             {/* Les boutons par défaut de Shadcn UI utilisent déjà primary et primary-foreground */}
                             <Button size="lg"
                                     className="shadow-md transition duration-300"> {/* Supprime les classes de couleur manuelles */}

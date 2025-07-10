@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {authenticatedFetch} from '@/lib/api.ts';
 import {toast} from 'sonner';
-import {useAuth} from "@/context/UseAuth.tsx";
+import {useAuth} from "@/context/AuthContext.tsx";
 
 interface Paiement {
     id: number;

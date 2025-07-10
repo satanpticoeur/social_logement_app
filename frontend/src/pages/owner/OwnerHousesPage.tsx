@@ -17,7 +17,8 @@ import {
     DialogTrigger
 } from "@/components/ui/dialog.tsx";
 import HouseDetailsDialog from "@/components/house/HouseDetailsDialog.tsx";
-import {useAuth} from "@/context/UseAuth.tsx"; // Assurez-vous que le chemin est correct
+import {useAuth} from "@/context/AuthContext.tsx";
+
 
 interface Maison {
     id: number;

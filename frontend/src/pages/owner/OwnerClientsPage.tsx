@@ -3,7 +3,8 @@ import {useNavigate} from 'react-router-dom';
 import {authenticatedFetch} from '@/lib/api.ts';
 import {toast} from 'sonner';
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx";
-import {useAuth} from "@/context/UseAuth.tsx";
+import {useAuth} from "@/context/AuthContext.tsx";
+
 
 interface Client {
     cni: string

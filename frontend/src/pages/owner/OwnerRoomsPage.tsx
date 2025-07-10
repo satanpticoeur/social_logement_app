@@ -17,7 +17,7 @@ import {
     DialogTitle,
     DialogTrigger
 } from "@/components/ui/dialog.tsx";
-import {useAuth} from "@/context/UseAuth.tsx";
+import {useAuth} from "@/context/AuthContext.tsx";
 
 interface Chambre {
     id: number;

@@ -50,12 +50,12 @@ export const AuthProvider = ({children}: { children: ReactNode }) => {
                 credentials: 'include',
             });
 
+
             if (response.ok) {
                 const data = await response.json();
                 setUser({id: data.user_id, nom_utilisateur: data.nom_utilisateur, role: data.role, email: data.email});
 
                 if (window.location.pathname === '/login' || window.location.pathname === '/register') {
-                    // si l'utilisateur est un loctaire
                     if (data.role === 'locataire') {
                         navigate('/locataire/dashboard');
                     } else if (data.role === 'proprietaire') {
@@ -67,6 +67,7 @@ export const AuthProvider = ({children}: { children: ReactNode }) => {
                     }
                 }
             } else if (response.status === 401 || response.status === 403) {
+                // on supprime d'abord
                 setUser(null);
             } else {
                 throw new Error(`Erreur HTTP: ${response.status}`);
@@ -92,7 +93,6 @@ export const AuthProvider = ({children}: { children: ReactNode }) => {
                 credentials: 'include',
             });
 
-            console.log("Login response:", response);
 
             const data = await response.json();
 
