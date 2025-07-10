@@ -1,8 +1,7 @@
-# backend/app/__init__.py
 import json
 
 from dotenv import load_dotenv
-from flask import Flask, jsonify  # <-- Importez jsonify directement de flask
+from flask import Flask, jsonify
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager

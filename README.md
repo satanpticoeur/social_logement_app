@@ -144,6 +144,7 @@ Pour lancer l'application complète (backend et frontend) pour le développement
     source venv/bin/activate # ou venv\Scripts\activate pour Windows
     flask db init #Cela va créer un dossier migrations/ dans le backend
     flask db migrate -m "Initial migration"
+    flask db upgrade
     flask run -- host 0.0.0.0 --debug # pour lancer l'application en mode debug (rafraichissement à chaud...)
     ```
 
