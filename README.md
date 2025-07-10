@@ -87,11 +87,11 @@ Ce projet est une plateforme de Gestion des locations, composée de :
 1.  **Clonez le dépôt du projet :**
 
     ```bash
-    git clone <URL_DE_VOTRE_DEPOT_MONOREPO>
-    cd <NOM_DU_DOSSIER_RACINE_DU_PROJET>
+    git clone https://github.com/satanpticoeur/social_logement_app.git
+    cd social_logement_app
     ```
 
-    _(Si votre projet est un monorepo avec le frontend et le backend dans des sous-dossiers, par exemple `backend/` et `frontend/`)_
+    _(Le projet est un monorepo avec le frontend et le backend dans des sous-dossiers `backend/` et `frontend/`)_
 
 2.  **Installation des dépendances du Backend :**
 
@@ -114,60 +114,45 @@ Ce projet est une plateforme de Gestion des locations, composée de :
 ### Configuration de la Base de Données
 
 - **Pour SQLite (développement, backend) :**
-  Aucune configuration supplémentaire n'est nécessaire si vous utilisez `SQLALCHEMY_DATABASE_URI="sqlite:///app.db"` par défaut dans votre `.env` backend. Le fichier sera créé automatiquement.
 
 ### Variables d'Environnement
 
 Créez deux fichiers `.env` distincts :
 
-1.  **`backend/.env`** (pour l'API Flask) :
+1.  **`backend/.flaskenv`** (pour l'API Flask) :
 
     ```
-    FLASK_APP=app
+    FLASK_APP=run.py
     FLASK_ENV=development  # Ou 'production'
-    SECRET_KEY='votre_clé_secrète_backend_unique_et_forte'
-    JWT_SECRET_KEY='votre_clé_secrète_jwt_backend_unique_et_forte'
-    SQLALCHEMY_DATABASE_URI="sqlite:///app.db"
     ```
 
 2.  **`frontend/.env`** (pour l'application React) :
     ```
-    # URL de base de votre API Flask
-    VITE_API_BASE_URL=http://localhost:5000/api
-    # Ou pour la production:
-    # VITE_API_BASE_URL=[https://api.votre-domaine.com/api](https://api.votre-domaine.com/api)
+    # URL de base de l'API Flask
+    VITE_API_BACKEND_URL=http://localhost:5000
     ```
-    _(Note: Si vous utilisez Create React App, le préfixe sera `REACT_APP_`au lieu de`VITE*`)*
-
-**N'oubliez pas de remplacer toutes les valeurs des clés secrètes et les URL par vos propres configurations.**
 
 ## 5. Lancement de l'Application
 
 Pour lancer l'application complète (backend et frontend) pour le développement :
 
 1.  **Lancez le Backend (API Flask) :**
-    Ouvrez un premier terminal à la racine de votre projet.
+    Ouvrez un premier terminal à la racine du projet.
 
     ```bash
     cd backend
     source venv/bin/activate # ou venv\Scripts\activate pour Windows
-    python # Entrez dans l'interpréteur Python
-    >>> from app import db, create_app
-    >>> app = create_app()
-    >>> with app.app_context():
-    ...     db.create_all() # Crée les tables si elles n'existent pas (première fois ou après modifications de modèles)
-    # Quittez l'interpréteur Python (Ctrl+D sur Linux/macOS, Ctrl+Z puis Entrée sur Windows)
-    flask run
+    flask db init #Cela va créer un dossier migrations/ dans le backend
+    flask db migrate -m "Initial migration"
+    flask run -- host 0.0.0.0 --debug # pour lancer l'application en mode debug (rafraichissement à chaud...)
     ```
 
     L'API sera accessible sur `http://127.0.0.1:5000`.
 
 2.  **Lancez le Frontend (Application React) :**
-    Ouvrez un second terminal à la racine de votre projet.
+    Ouvrez un second terminal à la racine du projet.
     ```bash
     cd frontend
     npm run dev # ou yarn dev
     ```
-    L'application React sera accessible dans votre navigateur à l'adresse (généralement) : `http://localhost:5173`.
-
-Vous avez maintenant votre backend API et votre frontend React en cours d'exécution, prêts pour le développement et les tests !
+    L'application React sera accessible dans le navigateur à l'adresse : `http://localhost:5173`.
