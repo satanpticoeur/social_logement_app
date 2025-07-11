@@ -100,7 +100,13 @@ export const AuthProvider = ({children}: { children: ReactNode }) => {
                 console.log("User logged in:", data);
                 setUser({id: data.user_id, nom_utilisateur: data.nom_utilisateur, role: data.role, email: data.email});
                 toast.success("Connexion réussie", {description: `Bienvenue, ${data.role} !`});
-                navigate('/');
+                if (data.role === 'locataire') {
+                    return navigate('/locataire/dashboard');
+                } else if (data.role === 'proprietaire') {
+                    return navigate('/owner/dashboard');
+                }else {
+                    navigate('/');
+                }
             } else {
                 throw new Error(data.message || "Erreur lors de la connexion.");
             }

@@ -15,38 +15,37 @@ import {
 import {Button} from "@/components/ui/button";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
-import {Textarea} from "@/components/ui/textarea"; // Pour une description longue si nécessaire
-import {ScrollArea} from "@/components/ui/scroll-area"; // Si le formulaire devient long
+import {Textarea} from "@/components/ui/textarea";
+import {ScrollArea} from "@/components/ui/scroll-area";
 
-// Interface pour une maison (doit correspondre à votre modèle API)
 interface Maison {
     id: number;
     adresse: string;
     ville: string;
-    description: string | null; // Ajoutez cette prop si vous avez une description
-    // Ajoutez d'autres champs de maison pertinents ici (ex: nombre_chambres, etc.)
+    description: string | null;
 }
 
 interface HouseDialogFormProps {
-    onHouseActionSuccess: () => void; // Callback pour rafraîchir la liste après ajout/modification
-    houseToEdit?: Maison | null; // OPTIONNEL: La maison à modifier. Si présente, mode édition.
-    actionType: 'add' | 'edit'; // Définit si c'est un ajout ou une modification
-    children: ReactNode; // Le bouton/élément qui déclenche l'ouverture du dialogue
+    onHouseActionSuccess: () => void;
+    houseToEdit?: Maison | null;
+    actionType: 'add' | 'edit';
+    children: ReactNode;
 }
 
-export const HouseDialogForm: React.FC<HouseDialogFormProps> = ({
-                                                                    onHouseActionSuccess,
-                                                                    houseToEdit,
-                                                                    actionType,
-                                                                    children
-                                                                }) => {
+export const HouseDialogForm: React.FC<HouseDialogFormProps> = (
+    {
+        onHouseActionSuccess,
+        houseToEdit,
+        actionType,
+        children
+    }) => {
     const [formData, setFormData] = useState({
         adresse: '',
         ville: '',
-        description: '', // Initialiser la description
+        description: '',
     });
     const [submitting, setSubmitting] = useState(false);
-    const [dialogOpen, setDialogOpen] = useState(false); // Géré en interne
+    const [dialogOpen, setDialogOpen] = useState(false);
 
     const isEditing = actionType === 'edit';
     const dialogTitle = isEditing ? "Modifier la Maison" : "Ajouter une Nouvelle Maison";
@@ -100,8 +99,8 @@ export const HouseDialogForm: React.FC<HouseDialogFormProps> = ({
                 toast.success(response.message || "Maison ajoutée avec succès !");
             }
 
-            onHouseActionSuccess(); // Appelle le callback de succès
-            setDialogOpen(false); // Ferme le dialogue
+            onHouseActionSuccess();
+            setDialogOpen(false);
 
         } catch (error: any) {
             console.error(`Erreur lors de ${isEditing ? 'la modification' : 'l\'ajout'} de la maison:`, error);
@@ -142,7 +141,6 @@ export const HouseDialogForm: React.FC<HouseDialogFormProps> = ({
                                 <Textarea id="description" name="description" value={formData.description}
                                           onChange={handleInputChange} rows={3} className="mt-1 "></Textarea>
                             </div>
-                            {/* Ajoutez d'autres champs si votre modèle de Maison en a */}
                         </form>
                     </div>
                 </ScrollArea>

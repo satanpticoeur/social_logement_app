@@ -6,13 +6,13 @@ import PrivateRoute from '@/components/PrivateRoute'
 
 
 // Pages Propriétaire
-const OwnerDashboardPage = React.lazy(() => import('@/pages/owner/Dashboard'));
+const OwnerDashboardPage = React.lazy(() => import('@/pages/owner/OwnerDashboard.tsx'));
 const OwnerClientsPage = React.lazy(() => import('@/pages/owner/OwnerClientsPage'));
 const OwnerHousesPage = React.lazy(() => import('@/pages/owner/OwnerHousesPage'));
 const OwnerRoomsPage = React.lazy(() => import('@/pages/owner/OwnerRoomsPage'));
 const OwnerContractsPage = React.lazy(() => import('@/pages/owner/OwnerContractsPage'));
 const ProprietairePaiementsPage = React.lazy(() => import('@/pages/owner/ProprietairePaiementsPage.tsx'));
-const DashboardLayoutPage = React.lazy(() => import('@/pages/owner/DashboardLayout'));
+const DashboardLayoutPage = React.lazy(() => import('@/pages/owner/OwnerDashboardLayout.tsx'));
 
 const PaymentDashboardPage = React.lazy(() => import('@/pages/owner/PaymentDashboardPage.tsx'));
 const ContractDetailPage = React.lazy(() => import('@/pages/contract/ContractDetailPage'));

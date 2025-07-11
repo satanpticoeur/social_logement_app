@@ -42,9 +42,6 @@ def get_proprietaire_clients():
     return jsonify(clients_data), 200
 
 
-# 2. En tant que propriétaire, je veux avoir la liste de mes chambres en locations (liées à mes maisons)
-# ... (début du fichier)
-
 @proprietaire_bp.route('/proprietaire/chambres', methods=['GET'])
 @role_required(['proprietaire'])
 def get_proprietaire_chambres():

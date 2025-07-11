@@ -6,29 +6,27 @@ export const LandingPage: React.FC = () => {
     return (
         <>
             <div
-                className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] py-12 px-4 sm:px-6 lg:px-8 bg-background text-foreground"> {/* Utilise bg-background et text-foreground */}
+                className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] py-12 px-4 sm:px-6 lg:px-8 bg-background text-foreground">
 
                 {/* Section Hero */}
                 <section className="text-center max-w-4xl mb-12">
-                    <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-foreground leading-tight"> {/* Utilise text-foreground */}
+                    <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-foreground leading-tight">
                         Trouvez le Logement Idéal au Sénégal.
                     </h1>
-                    <p className="mt-4 text-xl text-muted-foreground max-w-2xl mx-auto"> {/* Utilise text-muted-foreground */}
+                    <p className="mt-4 text-xl text-muted-foreground max-w-2xl mx-auto">
                         Simplifiez la gestion immobilière et la recherche de logement au Sénégal. Que vous soyez
                         propriétaire ou locataire, notre plateforme est conçue pour vous.
                     </p>
                     <div className="mt-8 flex justify-center space-x-4">
-                        <Link to="/locataire/search">
-                            {/* Les boutons par défaut de Shadcn UI utilisent déjà primary et primary-foreground */}
+                        <Link to="/rooms">
                             <Button size="lg"
-                                    className="shadow-md transition duration-300"> {/* Supprime les classes de couleur manuelles */}
+                                    className="shadow-md transition duration-300">
                                 Découvrir les Chambres
                             </Button>
                         </Link>
                         <Link to="/owner/dashboard">
-                            {/* Les boutons "outline" utilisent border et foreground */}
                             <Button variant="outline" size="lg"
-                                    className="transition duration-300"> {/* Supprime les classes de couleur manuelles */}
+                                    className="transition duration-300">
                                 Espace Propriétaire
                             </Button>
                         </Link>
@@ -36,19 +34,19 @@ export const LandingPage: React.FC = () => {
                 </section>
 
                 {/* Section : Comment ça marche ? */}
-                <section className="w-full max-w-6xl my-16 p-8 bg-card rounded-lg shadow-xl"> {/* Utilise bg-card */}
-                    <h2 className="text-4xl font-bold text-center mb-12 text-foreground"> {/* Utilise text-foreground */}
+                <section className="w-full max-w-6xl my-16 p-8 bg-card rounded-lg shadow-xl">
+                    <h2 className="text-4xl font-bold text-center mb-12 text-foreground">
                         Comment ça marche ?
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                         {/* Étape 1 */}
                         <div className="flex flex-col items-center text-center">
                             <div
-                                className="bg-primary/10 text-primary rounded-full h-16 w-16 flex items-center justify-center text-3xl font-bold mb-4"> {/* Utilise bg-primary/10 et text-primary */}
+                                className="bg-primary/10 text-primary rounded-full h-16 w-16 flex items-center justify-center text-3xl font-bold mb-4">
                                 1
                             </div>
                             <h3 className="text-xl font-semibold mb-2">Inscrivez-vous</h3>
-                            <p className="text-muted-foreground"> {/* Utilise text-muted-foreground */}
+                            <p className="text-muted-foreground">
                                 Créez votre compte en quelques secondes, que vous cherchiez un logement ou que vous
                                 souhaitiez en proposer un.
                             </p>
@@ -82,13 +80,13 @@ export const LandingPage: React.FC = () => {
 
                 {/* Section : Bénéfices pour les Propriétaires */}
                 <section
-                    className="w-full max-w-6xl my-16 p-8 bg-secondary rounded-lg shadow-xl"> {/* Utilise bg-secondary */}
+                    className="w-full max-w-6xl my-16 p-8 bg-secondary rounded-lg shadow-xl">
                     <h2 className="text-4xl font-bold text-center mb-10 text-foreground">
                         Pour les Propriétaires
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         <div
-                            className="bg-card p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300"> {/* Utilise bg-card */}
+                            className="bg-card p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300">
                             <h3 className="text-xl font-semibold mb-2">Gestion Simplifiée</h3>
                             <p className="text-muted-foreground">
                                 Suivez vos chambres, contrats et locataires depuis un tableau de bord intuitif.
@@ -111,7 +109,7 @@ export const LandingPage: React.FC = () => {
                     </div>
                     <div className="text-center mt-12">
                         <Link to="/owner/dashboard">
-                            <Button size="lg" className="shadow-md transition duration-300"> {/* Bouton par défaut */}
+                            <Button size="lg" className="shadow-md transition duration-300">
                                 Démarrez la Gestion de Vos Biens
                             </Button>
                         </Link>
@@ -120,13 +118,13 @@ export const LandingPage: React.FC = () => {
 
                 {/* Section : Bénéfices pour les Locataires */}
                 <section
-                    className="w-full max-w-6xl my-16 p-8 bg-secondary rounded-lg shadow-xl"> {/* Utilise bg-secondary */}
+                    className="w-full max-w-6xl my-16 p-8 bg-secondary rounded-lg shadow-xl">
                     <h2 className="text-4xl font-bold text-center mb-10 text-foreground">
                         Pour les Locataires
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         <div
-                            className="bg-card p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300"> {/* Utilise bg-card */}
+                            className="bg-card p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300">
                             <h3 className="text-xl font-semibold mb-2">Recherche Personnalisée</h3>
                             <p className="text-muted-foreground">
                                 Filtrez par dimension, nature (meublée/non meublée), prix, et plus encore.
@@ -147,7 +145,7 @@ export const LandingPage: React.FC = () => {
                     </div>
                     <div className="text-center mt-12">
                         <Link to="/rooms">
-                            <Button size="lg" className="shadow-md transition duration-300"> {/* Bouton par défaut */}
+                            <Button size="lg" className="shadow-md transition duration-300">
                                 Trouvez Votre Prochain Logement
                             </Button>
                         </Link>
@@ -156,12 +154,12 @@ export const LandingPage: React.FC = () => {
 
                 {/* Section Témoignages */}
                 <section
-                    className="w-full max-w-6xl my-16 p-8 bg-card rounded-lg shadow-xl text-center"> {/* Utilise bg-card */}
+                    className="w-full max-w-6xl my-16 p-8 bg-card rounded-lg shadow-xl text-center">
                     <h2 className="text-4xl font-bold mb-10 text-foreground">
                         Ce que nos utilisateurs disent
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <blockquote className="p-6 bg-background rounded-lg shadow"> {/* Utilise bg-background */}
+                        <blockquote className="p-6 bg-background rounded-lg shadow">
                             <p className="text-lg italic text-foreground">
                                 "Grâce à Social Logement, j'ai trouvé ma chambre idéale en un rien de temps. Le
                                 processus était si simple !"
@@ -180,7 +178,7 @@ export const LandingPage: React.FC = () => {
 
                 {/* Footer */}
                 <footer
-                    className="w-full py-6 text-center text-muted-foreground border-t border-border mt-12"> {/* Utilise text-muted-foreground et border-border */}
+                    className="w-full py-6 text-center text-muted-foreground border-t border-border mt-12">
                     <p>&copy; {new Date().getFullYear()} Social Logement. Tous droits réservés.</p>
                 </footer>
             </div>
