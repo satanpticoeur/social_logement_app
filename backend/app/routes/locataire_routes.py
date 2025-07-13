@@ -1,5 +1,6 @@
 from datetime import timedelta, datetime, date
 
+from dateutil.relativedelta import relativedelta
 from flask import Blueprint, request, jsonify, current_app
 from app import db
 from app.models import Chambre, Maison, Contrat, Utilisateur, Paiement
@@ -13,7 +14,6 @@ locataire_bp = Blueprint('locataire', __name__, url_prefix='/api/locataire')
 
 
 @locataire_bp.route('/chambres/recherche', methods=['GET'])
-# @jwt_required()
 def search_chambres():
     ville = request.args.get('ville')
     min_prix = request.args.get('min_prix', type=float)
@@ -107,9 +107,7 @@ def get_chambre_details(chambre_id):
 
 # Utility function to generate payments (can be placed here or in a utils.py file)
 def generer_paiements_contrat(contrat: Contrat):
-    """
-    Génère les paiements mensuels pour un contrat donné.
-    """
+
     paiements_generes = []
     current_date = contrat.date_debut
     loyer_mensuel = contrat.chambre.prix
@@ -151,89 +149,79 @@ def generer_paiements_contrat(contrat: Contrat):
 
 @locataire_bp.route('/chambres/<int:chambre_id>/louer', methods=['POST'])
 @jwt_required()
-def louer_chambre(chambre_id):
+def soumettre_demande_location(chambre_id):
     current_user_identity = get_jwt_identity()
-    locataire_id = json.loads(current_user_identity)['id']
+    current_user_id = json.loads(current_user_identity)['id']
+    locataire = Utilisateur.query.get(current_user_id)
 
-    locataire = Utilisateur.query.get(locataire_id)
     if not locataire or locataire.role != 'locataire':
-        return jsonify({"message": "Accès refusé. Seuls les locataires peuvent louer une chambre."}), 403
+        return jsonify({"message": "Accès refusé. Seuls les locataires peuvent soumettre des demandes."}), 403
 
     chambre = Chambre.query.get(chambre_id)
     if not chambre:
         return jsonify({"message": "Chambre non trouvée."}), 404
-    if not chambre.disponible:
-        return jsonify({"message": "Cette chambre n'est plus disponible."}), 400
+
+    contrat_existant_ou_attente = Contrat.query.filter(
+        Contrat.chambre_id == chambre_id,
+        Contrat.statut.in_(['actif', 'en_attente_validation'])
+    ).first()
+
+    if contrat_existant_ou_attente:
+        return jsonify({"message": "Cette chambre a déjà une demande de location en attente ou un contrat actif."}), 400
 
     data = request.get_json()
-    date_debut_contrat_str = data.get('date_debut')
-    duree_mois = data.get('duree_mois', 12)
-
-    if not date_debut_contrat_str:
-        return jsonify({"message": "La date de début du contrat est obligatoire."}), 400
+    if not data:
+        return jsonify({"message": "Données de requête manquantes."}), 400
 
     try:
-        date_debut_contrat = datetime.strptime(date_debut_contrat_str, '%Y-%m-%d').date()
+        date_debut_str = data.get('date_debut')
+        duree_mois = data.get('duree_mois')
+
+        if not date_debut_str or not duree_mois:
+            return jsonify({"message": "Les champs 'date_debut' et 'duree_mois' sont requis."}), 400
+
+        date_debut = datetime.strptime(date_debut_str, '%Y-%m-%d').date()
+        date_fin = date_debut + relativedelta(months=+duree_mois)
+
+        if date_debut < datetime.now().date():
+             return jsonify({"message": "La date de début ne peut pas être dans le passé."}), 400
+
     except ValueError:
-        return jsonify({"message": "Format de date de début invalide. Utilisez YYYY-MM-DD."}), 400
-
-    date_fin_contrat = date_debut_contrat
-    for _ in range(duree_mois):
-        year, month = date_fin_contrat.year, date_fin_contrat.month
-        month += 1
-        if month > 12:
-            month = 1
-            year += 1
-        try:
-            date_fin_contrat = date(year, month, date_fin_contrat.day)
-        except ValueError:
-            date_fin_contrat = date(year, month, 1) - timedelta(days=1)
-
-    date_fin_contrat = date_fin_contrat - timedelta(days=1)
-
-    montant_caution = data.get('montant_caution', float(chambre.prix) * 2)
-    mois_caution = data.get('mois_caution', 2)
-    mode_paiement = data.get('mode_paiement', 'virement_bancaire')
-    periodicite = data.get('periodicite', 'mensuel')
+        return jsonify({"message": "Format de date invalide. Utilisez YYYY-MM-DD."}), 400
+    except Exception as e:
+        return jsonify({"message": f"Erreur de validation des données: {str(e)}"}), 400
 
     try:
-        db.session.begin_nested()
+        loyer_mensuel = chambre.prix
+        mois_caution = 1  # Par défaut, la caution est d'un mois de loyer
+        montant_caution_calcule = loyer_mensuel * mois_caution
 
-        chambre.disponible = False
-        db.session.add(chambre)
-
-        new_contrat = Contrat(
-            locataire_id=locataire_id,
-            chambre_id=chambre_id,
-            date_debut=date_debut_contrat,
-            date_fin=date_fin_contrat,
-            montant_caution=montant_caution,
+        nouveau_contrat = Contrat(
+            locataire_id=locataire.id,
+            chambre_id=chambre.id,
+            date_debut=date_debut,
+            date_fin=date_fin,
+            montant_caution=montant_caution_calcule,
             mois_caution=mois_caution,
-            mode_paiement=mode_paiement,
-            periodicite=periodicite,
-            statut='actif',
-            description=f"Contrat de location pour la chambre '{chambre.titre}' du {date_debut_contrat.isoformat()} au {date_fin_contrat.isoformat()}."
+            duree_mois=duree_mois,
+            description=f"Demande de location pour la chambre {chambre.titre}",
+            mode_paiement="Virement Bancaire",
+            periodicite="Mensuel",
+            statut="en_attente_validation"
         )
-        db.session.add(new_contrat)
-        db.session.flush()
-
-        generer_paiements_contrat(new_contrat)
-
+        db.session.add(nouveau_contrat)
         db.session.commit()
 
         return jsonify({
-            "message": "Chambre louée avec succès et contrat, incluant l'échéancier des paiements, généré !",
-            "chambre_id": chambre.id,
-            "contrat_id": new_contrat.id,
-            "chambre_disponible": chambre.disponible
+            "message": f"Demande de location soumise avec succès. Montant de la caution estimé: {montant_caution_calcule} FCFA. En attente de validation par le propriétaire.",
+            "contrat_id": nouveau_contrat.id
         }), 201
 
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(
-            f"Erreur lors de la location de la chambre {chambre_id} ou génération des paiements: {e}")
-        return jsonify(
-            {"message": "Erreur lors de la location de la chambre. Veuillez réessayer.", "error": str(e)}), 500
+        return jsonify({"message": f"Une erreur est survenue lors de la soumission de la demande: {str(e)}"}), 500
+
+
 
 
 @locataire_bp.route('/contrats', methods=['GET'])
@@ -337,13 +325,40 @@ def get_locataire_contrat_paiements(contrat_id):
         })
     return jsonify(results), 200
 
-# REMOVE THESE ROUTES AS DemandeLocation DOES NOT EXIST
-# @locataire_bp.route('/demander-location', methods=['POST'])
-# @jwt_required()
-# def creer_demande_location():
-#     pass # ... (delete the entire function) ...
+@locataire_bp.route('/mes-demandes-contrats', methods=['GET'])
+@jwt_required()
+def get_mes_demandes_contrats():
+    current_user_identity = get_jwt_identity()
+    locataire_id = json.loads(current_user_identity)['id']
+    locataire = Utilisateur.query.get(locataire_id)
 
-# @locataire_bp.route('/demandes-location', methods=['GET'])
-# @jwt_required()
-# def get_mes_demandes_location():
-#     pass # ... (delete the entire function) ...
+    if not locataire or locataire.role != 'locataire':
+        return jsonify({"message": "Accès refusé. Seuls les locataires peuvent voir leurs demandes."}), 403
+
+    # Charger tous les contrats (actifs, en attente, rejetés, terminés) pour ce locataire
+    demandes_et_contrats = Contrat.query.options(
+        joinedload(Contrat.chambre).joinedload(Chambre.maison).joinedload(Maison.proprietaire)
+    ).filter(
+        Contrat.locataire_id == locataire.id
+    ).order_by(Contrat.date_debut.desc()).all() # Tri par date la plus récente
+
+    results = []
+    for contrat in demandes_et_contrats:
+        proprietaire_nom = 'N/A'
+        if contrat.chambre and contrat.chambre.maison and contrat.chambre.maison.proprietaire:
+            proprietaire_nom = contrat.chambre.maison.proprietaire.nom_utilisateur  # Ou le champ approprié du nom d'utilisateur
+        results.append({
+            "id": contrat.id,
+            "chambre_id": contrat.chambre.id,
+            "chambre_titre": contrat.chambre.titre,
+            "proprietaire_nom": proprietaire_nom,
+            "date_debut": contrat.date_debut.isoformat(),
+            "date_fin": contrat.date_fin.isoformat(),
+            "montant_caution": contrat.montant_caution,
+            "duree_mois": contrat.duree_mois,
+            "statut": contrat.statut
+        })
+    return jsonify(results), 200
+
+
+

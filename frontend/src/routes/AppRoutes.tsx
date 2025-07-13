@@ -1,6 +1,6 @@
-import React, { Suspense } from 'react';
-import { Route, Routes } from 'react-router-dom';
-import { HomePage } from '@/pages/HomePage';
+import React, {Suspense} from 'react';
+import {Route, Routes} from 'react-router-dom';
+import {HomePage} from '@/pages/HomePage';
 import {LandingPage} from "@/pages/LandingPage.tsx";
 
 const LodgerRoutes = React.lazy(() => import('./LodgerRoutes.tsx'));
@@ -14,19 +14,19 @@ export const AppRoutes: React.FC = () => {
     return (
         <Suspense fallback={<div>Chargement de la page...</div>}>
             <Routes>
-                <Route path="/" element={<HomePage />}>
-                    <Route index element={<LandingPage />} />
-                    <Route path="login" element={<LoginPage />} />
-                    <Route path="register" element={<RegisterPage />} />
+                <Route path="/" element={<HomePage/>}>
+                    <Route index element={<LandingPage/>}/>
+                    <Route path="login" element={<LoginPage/>}/>
+                    <Route path="register" element={<RegisterPage/>}/>
 
-                    <Route path="lodger/*" element={<LodgerRoutes />} />
 
-                    <Route path="rooms" element={ <RoomListPage /> } />
+                    <Route path="rooms" element={<RoomListPage/>}/>
                 </Route>
+                <Route path="lodger/*" element={<LodgerRoutes/>}/>
 
-                <Route path="owner/dashboard/*" element={<OwnerRoutes />} />
+                <Route path="owner/dashboard/*" element={<OwnerRoutes/>}/>
 
-                <Route path="*" element={<h1 className="text-center text-3xl mt-10"> 404 - Page non trouvée</h1>} />
+                <Route path="*" element={<h1 className="text-center text-3xl mt-10"> 404 - Page non trouvée</h1>}/>
             </Routes>
         </Suspense>
     );

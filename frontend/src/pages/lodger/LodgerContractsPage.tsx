@@ -1,4 +1,3 @@
-// src/pages/LocataireContratsPage.tsx
 import React, {useEffect, useState} from 'react';
 import {authenticatedFetch} from '@/lib/api.ts';
 import {toast} from 'sonner';
@@ -29,6 +28,7 @@ const LodgerContractsPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        console.log("Chargement des contrats de location...");
         fetchContrats();
     }, []);
 

@@ -13,7 +13,9 @@ import {
 } from "@/components/ui/sidebar"
 import {BedDoubleIcon, HandCoinsIcon, HouseIcon, LayoutDashboardIcon, ListIcon, UsersIcon} from "lucide-react";
 
-const navMain = [
+import {useAuth} from "@/context/AuthContext.tsx";
+
+const ownerNavMain = [
     {
         title: "Dashboard",
         url: "",
@@ -41,14 +43,47 @@ const navMain = [
         icon: ListIcon,
     },
     {
+        title: "Demandes de location",
+        url: "RentalRequests",
+        icon: UsersIcon,
+    },
+    {
         title: "Paiements",
         url: "payments",
         icon: HandCoinsIcon,
     }
 ]
+const lodgerNavMain = [
+    {
+        title: "Dashboard",
+        url: "",
+        icon: LayoutDashboardIcon,
+    },
+    {
+        title: "Chambres",
+        url: "rooms",
+        icon: BedDoubleIcon,
+    },
+    {
+        title: "Contrats",
+        url: "contrats",
+        icon: ListIcon,
+    },
+    {
+        title: "Paiements",
+        url: "paiements",
+        icon: HandCoinsIcon,
+    },
+    {
+        title: "Mes demandes",
+        url: "mes-demandes",
+        icon: UsersIcon,
+    }
+]
 
 
 export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
+    const {user} = useAuth();
     return (
         <Sidebar collapsible="offcanvas" {...props}>
             <SidebarHeader>
@@ -68,7 +103,9 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
                 </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
-                <NavMain items={navMain}/>
+                <NavMain
+                    items={user?.role === 'proprietaire' ? ownerNavMain : lodgerNavMain}
+                />
             </SidebarContent>
             <SidebarFooter>
                 <NavUser/>

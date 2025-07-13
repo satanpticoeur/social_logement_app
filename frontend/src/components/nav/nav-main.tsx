@@ -5,19 +5,23 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar.tsx"
-import {Link} from "react-router-dom";
+import {Link, useLocation} from "react-router-dom";
 import {CirclePlusIcon} from "lucide-react";
 import React from "react";
 
-export function NavMain({
-                            items,
-                        }: {
+export function NavMain({items}: {
     items: {
         title: string
         url: string
         icon?: React.ComponentType<React.SVGProps<SVGSVGElement> | React.ComponentPropsWithoutRef<'svg'>>
     }[]
 }) {
+
+    const pathname = useLocation().pathname;
+    const lastSegment = pathname.split('/').pop();
+
+
+    console.log('pathname', lastSegment);
 
     return (
         <SidebarGroup>
@@ -36,7 +40,7 @@ export function NavMain({
                 <SidebarMenu>
                     {items.map((item) => (
                         <SidebarMenuItem key={item.title} className={
-                            `/owner/dashboard/${item.url}` === window.location.pathname + '/' || `/owner/dashboard/${item.url}` === window.location.pathname ? 'bg-secondary text-secondary-foreground' : ''
+                                lastSegment === item.url.split('/').pop() ? 'bg-secondary text-secondary-foreground' : ''
                         }>
                             <Link to={item.url}>
                                 <SidebarMenuButton tooltip={item.title}>

@@ -13,7 +13,6 @@ class Utilisateur(db.Model):
     cree_le = db.Column(db.DateTime,
                         default=db.func.current_timestamp())  # Utilise db.func.current_timestamp() pour la BD
 
-    # Relations : Utilisation de `back_populates` pour les relations bidirectionnelles.
     # Il faut que le nom du `backref` dans la classe opposée corresponde à ce nom.
     maisons = db.relationship('Maison', back_populates='proprietaire', lazy=True)
     contrats_locataire = db.relationship('Contrat', back_populates='locataire', lazy=True)  # Renommé pour clarté
@@ -85,8 +84,11 @@ class Contrat(db.Model):
     chambre_id = db.Column(db.Integer, db.ForeignKey('chambres.id'), nullable=False)
     date_debut = db.Column(db.Date, nullable=False)  # La date de début est obligatoire
     date_fin = db.Column(db.Date, nullable=False)  # La date de fin est obligatoire
-    montant_caution = db.Column(db.Numeric(10, 2), nullable=True)  # Peut être nullable
-    mois_caution = db.Column(db.Integer, nullable=True)  # <= 3, peut être nullable
+    # Durée en mois, peut être nullable mais par défaut date_fin - date_debut
+
+    duree_mois = db.Column(db.Integer, nullable=True, default=db.func.date_part('month', db.func.age(date_fin, date_debut)))
+    montant_caution = db.Column(db.Numeric(10, 2), nullable=False)  # Peut être nullable
+    mois_caution = db.Column(db.Integer,nullable=False, default=1)  # <= 3, peut être nullable
     description = db.Column(db.Text, nullable=True)  # Peut être nullable
     mode_paiement = db.Column(db.String(255), nullable=False, default='virement')  # Le mode de paiement est important
     periodicite = db.Column(db.String(255), nullable=False,
@@ -99,6 +101,7 @@ class Contrat(db.Model):
     chambre = db.relationship('Chambre', back_populates='contrats_chambre')
     paiements = db.relationship('Paiement', back_populates='contrat', lazy=True)
     problemes = db.relationship('Probleme', back_populates='contrat', lazy=True)
+
 
     def __repr__(self):
         return f'<Contrat {self.id}>'

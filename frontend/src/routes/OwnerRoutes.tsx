@@ -16,7 +16,7 @@ const DashboardLayoutPage = React.lazy(() => import('@/pages/owner/OwnerDashboar
 
 const PaymentDashboardPage = React.lazy(() => import('@/pages/owner/PaymentDashboardPage.tsx'));
 const ContractDetailPage = React.lazy(() => import('@/pages/contract/ContractDetailPage'));
-
+const OwnerRentalRequestsPage = React.lazy(() => import('@/pages/owner/OwnerRentalRequestsPage.tsx'));
 const OwnerRoutes: React.FC = () => {
     return (
         <Suspense fallback={<div>Chargement ...</div>}>
@@ -31,6 +31,7 @@ const OwnerRoutes: React.FC = () => {
                     <Route path="contracts" element={<PrivateRoute> <OwnerContractsPage /></PrivateRoute>} />
                     <Route path="contracts/:id" element={<PrivateRoute> <ContractDetailPage /></PrivateRoute>} />
                     <Route path="contracts/:id/payments" element={<PrivateRoute> <ProprietairePaiementsPage /></PrivateRoute>} />
+                    <Route path="RentalRequests" element={<PrivateRoute> <OwnerRentalRequestsPage/> </PrivateRoute>} />
                 </Route>
 
                 {/* Route 404 */}

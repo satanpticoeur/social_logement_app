@@ -1,4 +1,4 @@
-import {BookUserIcon, DoorOpenIcon, HandCoinsIcon, HouseIcon, LayoutDashboardIcon,} from "lucide-react"
+import {DoorOpenIcon, HouseIcon, LayoutDashboardIcon,} from "lucide-react"
 
 import Logo from "@/components/logo"
 import {ThemeToggle} from "@/components/theme/theme-toggle.tsx"
@@ -21,8 +21,6 @@ const navigationLinks = [
     {href: "/owner/dashboard", label: "dashboard", icon: LayoutDashboardIcon},
     {href: "/houses", label: "maisons", icon: HouseIcon},
     {href: "/rooms", label: "chambres", icon: DoorOpenIcon},
-    {href: "/payments", label: "paiements", icon: HandCoinsIcon},
-    {href: "/contracts", label: "contrats", icon: BookUserIcon},
 
 ]
 
@@ -73,6 +71,9 @@ export function Navbar() {
                             <NavigationMenu className="max-w-none *:w-full">
                                 <NavigationMenuList className="flex-col items-start gap-0 md:gap-2">
                                     {navigationLinks.map((link, index) => {
+                                        if (link.label === "dashboard" && !isProprietaire) {
+                                            return null
+                                        }
                                         const Icon = link.icon
                                         return (
                                             <NavigationMenuItem key={index} className="w-full">
@@ -136,14 +137,11 @@ export function Navbar() {
                         }
 
 
-                        {/* Desktop navigation - icon only */}
                     </div>
                 </div>
 
                 {/* Right side */}
                 <div className="flex items-center gap-2">
-                    {/*si pas connecté */}
-
                     {!isAuthenticated && <>
                         <Link to="/login" className="hover:underline">Connexion</Link>
                         <Link to="/register" className="hover:underline">Inscription</Link>

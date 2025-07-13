@@ -135,12 +135,11 @@ const LodgerSearchPage: React.FC = () => {
                         </SelectContent>
                     </Select>
                 </div>
-                {/* Exemple d'intégration d'un Slider de prix si vous avez ce composant */}
                 <div className="col-span-full">
                     <Label className={"mb-2"}>Gamme de Prix</Label>
                     <Slider
                         min={0}
-                        max={2000000} // Ajustez selon votre range de prix
+                        max={2000000}
                         step={10000}
                         value={prixRange}
                         onValueChange={(range) => setPrixRange(range as [number, number])}
@@ -155,11 +154,10 @@ const LodgerSearchPage: React.FC = () => {
                 </Button>
             </form>
 
-            {/* Résultats de la Recherche */}
             {loading && <div className="text-center text-lg mt-8">Chargement des chambres...</div>}
             {!loading && chambres.length === 0 && (
                 <div className="text-center text-lg mt-8 text-gray-600">
-                    Aucune chambre ne correspond à vos critères de recherche.
+                    Aucune chambre trouvée.
                 </div>
             )}
             {!loading && chambres.length > 0 && (
@@ -197,7 +195,7 @@ const LodgerSearchPage: React.FC = () => {
                                         </Badge>
                                     </p>
                                     <p>
-                                        <strong>SDB Privée:</strong>
+                                        <strong>Salle de bain:</strong>
                                         <Badge variant={chambre.salle_de_bain ? "default" : "outline"} className="ml-2">
                                             {chambre.salle_de_bain ? 'Oui' : 'Non'}
                                         </Badge>
@@ -205,7 +203,7 @@ const LodgerSearchPage: React.FC = () => {
                                 </div>
                             </CardContent>
                             <CardFooter className="p-4 pt-0">
-                                <Link to={`/locataire/chambres/${chambre.id}`} className="w-full">
+                                <Link to={`/lodger/rooms/${chambre.id}`} className="w-full">
                                     <Button className="w-full">Voir les détails</Button>
                                 </Link>
                             </CardFooter>
