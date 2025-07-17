@@ -74,9 +74,7 @@ def add_chambre():
     }), 201
 
 @chambre_bp.route('/chambres', methods=['GET'])
-@role_required(roles=['proprietaire', 'admin', 'locataire'])
 def get_chambres():
-    # User Story 2 & 7: Filtrer par proprietaire_id si spécifié
     proprietaire_id = request.args.get('proprietaire_id', type=int)
     query = Chambre.query.options(db.joinedload(Chambre.maison).joinedload(Maison.proprietaire),
                                   db.joinedload(Chambre.medias))

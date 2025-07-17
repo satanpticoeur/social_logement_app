@@ -1,32 +1,54 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import type {Paiement} from '../../types/common.ts';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card.tsx';
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table.tsx';
+import {authenticatedFetch} from "@/lib/api.ts";
+
+interface PaiementDashboardPageProps {
+    paiements: {
+        id: number;
+        date_echeance: string;
+        date_paiement: string;
+        montant: number;
+        statut: string;
+        contrat_id: number;
+        locataire_nom_utilisateur: string;
+        chambre_titre: string;
+    }[];
+    dashboard_summary: {
+        total_paye: number;
+        total_impaye: number;
+        nombre_de_paiments_paye: number;
+        nombre_de_paiments_impaye: number;
+        nombre_de_paiments_partiles: number;
+    }
+
+}
 
 const PaymentDashboardPage: React.FC = () => {
-    const [paiements, setPaiements] = useState<Paiement[]>([]);
+    const [paiements, setPaiements] = useState<PaiementDashboardPageProps['paiements']>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     useEffect(() => {
-        fetch(`${BACKEND_URL}/api/paiements`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Erreur HTTP: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then((data: Paiement[]) => {
-                setPaiements(data);
-                setLoading(false);
-            })
-            .catch((err: Error) => {
+        const fetchPaiements = async () => {;
+            setLoading(true);
+            setError(null);
+            try {
+                const data = await authenticatedFetch('proprietaire/paiements', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                setPaiements(data.paiements);
+            } catch (err) {
                 console.error("Erreur lors de la récupération des paiements:", err);
-                setError("Erreur lors du chargement des paiements: " + err.message);
+                setError(err.message || 'Une erreur est survenue');
+            } finally {
                 setLoading(false);
-            });
+            }
+        }
+        fetchPaiements();
     }, [BACKEND_URL]);
 
     // Calcul des totaux et agrégations
@@ -37,14 +59,13 @@ const PaymentDashboardPage: React.FC = () => {
         let cUnpaid = 0;
 
         paiements.forEach(p => {
-            if (p.statut === 'payé') {
-                paid += p.montant;
+            if (p.statut === 'paye') {
+                paid += parseFloat(p.montant.toString());
                 cPaid++;
-            } else if (p.statut === 'impayé') {
-                unpaid += p.montant;
+            } else if (p.statut === 'impaye') {
+                unpaid += parseFloat(p.montant.toString());
                 cUnpaid++;
             }
-            // Ignorer 'partiel' pour l'instant ou le gérer différemment
         });
 
         return {totalPaid: paid, totalUnpaid: unpaid, countPaid: cPaid, countUnpaid: cUnpaid};
@@ -101,9 +122,7 @@ const PaymentDashboardPage: React.FC = () => {
                                     strokeWidth="2"
                                     className="h-4 w-4 text-muted-foreground"
                                 >
-                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                                    <circle cx="9" cy="7" r="4"/>
-                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
                                 </svg>
                             </CardHeader>
                             <CardContent>
@@ -135,16 +154,16 @@ const PaymentDashboardPage: React.FC = () => {
                                     {paiements.map(paiement => (
                                         <TableRow key={paiement.id} className="hover:bg-muted/50">
                                             <TableCell className="font-medium">{paiement.contrat_id}</TableCell>
-                                            <TableCell>{paiement.contrat?.chambre?.titre || 'N/A'}</TableCell>
-                                            <TableCell>{paiement.contrat?.locataire?.nom_utilisateur || 'N/A'}</TableCell>
+                                            <TableCell>{paiement.chambre_titre || 'N/A'}</TableCell>
+                                            <TableCell>{paiement.locataire_nom_utilisateur || 'N/A'}</TableCell>
                                             <TableCell>{paiement.montant.toLocaleString()} XOF</TableCell>
                                             <TableCell>{new Date(paiement.date_paiement).toLocaleDateString()}</TableCell>
                                             <TableCell>
                         <span
                             className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
-                                paiement.statut === 'payé'
+                                paiement.statut === 'paye'
                                     ? 'bg-green-50 text-green-700 ring-green-600/20 dark:bg-green-900 dark:text-green-200 dark:ring-green-700/30'
-                                    : paiement.statut === 'impayé'
+                                    : paiement.statut === 'impaye'
                                         ? 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-900 dark:text-red-200 dark:ring-red-700/30'
                                         : 'bg-yellow-50 text-yellow-700 ring-yellow-600/20 dark:bg-yellow-900 dark:text-yellow-200 dark:ring-yellow-700/30'
                             }`}>

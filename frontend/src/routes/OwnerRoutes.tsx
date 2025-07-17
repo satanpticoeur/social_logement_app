@@ -17,6 +17,8 @@ const DashboardLayoutPage = React.lazy(() => import('@/pages/owner/OwnerDashboar
 const PaymentDashboardPage = React.lazy(() => import('@/pages/owner/PaymentDashboardPage.tsx'));
 const ContractDetailPage = React.lazy(() => import('@/pages/contract/ContractDetailPage'));
 const OwnerRentalRequestsPage = React.lazy(() => import('@/pages/owner/OwnerRentalRequestsPage.tsx'));
+
+
 const OwnerRoutes: React.FC = () => {
     return (
         <Suspense fallback={<div>Chargement ...</div>}>

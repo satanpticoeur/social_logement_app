@@ -23,6 +23,7 @@ import {
     TableHeader,
     TableRow
 } from "@/components/ui/table.tsx";
+import {ScrollArea} from "@/components/ui/scroll-area.tsx";
 
 interface ContratProprietaire {
     id: number;
@@ -140,10 +141,14 @@ const ProprietaireContratsPage: React.FC = () => {
 
     const getPaiementStatusBadgeVariant = (status: string) => {
         switch (status) {
-            case 'paye': return 'default';
-            case 'impaye': return 'secondary';
-            case 'en_retard': return 'destructive';
-            default: return 'secondary';
+            case 'paye':
+                return 'default';
+            case 'impaye':
+                return 'secondary';
+            case 'en_retard':
+                return 'destructive';
+            default:
+                return 'secondary';
         }
     };
 
@@ -162,7 +167,8 @@ const ProprietaireContratsPage: React.FC = () => {
             <h1 className="text-3xl font-bold mb-6 text-center">Vos Contrats de Location</h1>
 
             {displayContracts.length === 0 ? (
-                <p className="text-center text-lg text-gray-600">Vous n'avez aucun contrat actif, rejeté ou terminé pour le moment.</p>
+                <p className="text-center text-lg text-gray-600">Vous n'avez aucun contrat actif, rejeté ou terminé pour
+                    le moment.</p>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {displayContracts.map((contrat) => (
@@ -217,54 +223,69 @@ const ProprietaireContratsPage: React.FC = () => {
                             Informations complètes et options de gestion pour le contrat.
                         </DialogDescription>
                     </DialogHeader>
-                    {selectedContrat ? (
-                        <div className="py-4 space-y-4">
-                            <p><strong>Chambre:</strong> {selectedContrat.chambre_titre} ({selectedContrat.chambre_adresse})</p>
-                            <p><strong>Locataire:</strong> {selectedContrat.locataire_nom_utilisateur} ({selectedContrat.locataire_email})</p>
-                            <p><strong>Statut:</strong> <Badge variant={getStatusBadgeVariant(selectedContrat.statut)}>{selectedContrat.statut.replace('_', ' ')}</Badge></p>
-                            <p><strong>Période:</strong> Du {new Date(selectedContrat.date_debut).toLocaleDateString()} au {new Date(selectedContrat.date_fin).toLocaleDateString()}</p>
-                            <p><strong>Loyer Mensuel:</strong> {selectedContrat.prix_mensuel_chambre.toLocaleString()} FCFA</p>
-                            <p><strong>Caution:</strong> {selectedContrat.montant_caution?.toLocaleString() || 'N/A'} FCFA ({selectedContrat.mois_caution} mois)</p>
-                            <p><strong>Mode de Paiement:</strong> {selectedContrat.mode_paiement}</p>
-                            <p><strong>Périodicité:</strong> {selectedContrat.periodicite}</p>
-                            {selectedContrat.description && <p><strong>Description:</strong> {selectedContrat.description}</p>}
+                    <ScrollArea className="max-h-[70vh] py-4">
+                        {selectedContrat ? (
+                            <div className="py-4 space-y-4">
+                                <p>
+                                    <strong>Chambre:</strong> {selectedContrat.chambre_titre} ({selectedContrat.chambre_adresse})
+                                </p>
+                                <p>
+                                    <strong>Locataire:</strong> {selectedContrat.locataire_nom_utilisateur} ({selectedContrat.locataire_email})
+                                </p>
+                                <p><strong>Statut:</strong> <Badge
+                                    variant={getStatusBadgeVariant(selectedContrat.statut)}>{selectedContrat.statut.replace('_', ' ')}</Badge>
+                                </p>
+                                <p>
+                                    <strong>Période:</strong> Du {new Date(selectedContrat.date_debut).toLocaleDateString()} au {new Date(selectedContrat.date_fin).toLocaleDateString()}
+                                </p>
+                                <p><strong>Loyer
+                                    Mensuel:</strong> {selectedContrat.prix_mensuel_chambre.toLocaleString()} FCFA</p>
+                                <p>
+                                    <strong>Caution:</strong> {selectedContrat.montant_caution?.toLocaleString() || 'N/A'} FCFA
+                                    ({selectedContrat.mois_caution} mois)</p>
+                                <p><strong>Mode de Paiement:</strong> {selectedContrat.mode_paiement}</p>
+                                <p><strong>Périodicité:</strong> {selectedContrat.periodicite}</p>
+                                {selectedContrat.description &&
+                                    <p><strong>Description:</strong> {selectedContrat.description}</p>}
 
-                            {selectedContrat.paiements && selectedContrat.paiements.length > 0 && (
-                                <div className="mt-6">
-                                    <h3 className="text-lg font-semibold mb-2">Échéancier des Paiements</h3>
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Description</TableHead>
-                                                <TableHead>Montant</TableHead>
-                                                <TableHead>Échéance</TableHead>
-                                                <TableHead>Date Payé</TableHead>
-                                                <TableHead>Statut</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {selectedContrat.paiements.map(paiement => (
-                                                <TableRow key={paiement.id}>
-                                                    <TableCell>{paiement.description}</TableCell>
-                                                    <TableCell>{paiement.montant.toLocaleString()} FCFA</TableCell>
-                                                    <TableCell>{new Date(paiement.date_echeance).toLocaleDateString()}</TableCell>
-                                                    <TableCell>{paiement.date_paiement ? new Date(paiement.date_paiement).toLocaleDateString() : 'N/A'}</TableCell>
-                                                    <TableCell>
-                                                        <Badge variant={getPaiementStatusBadgeVariant(paiement.statut)}>
-                                                            {paiement.statut.replace('_', ' ')}
-                                                        </Badge>
-                                                    </TableCell>
+                                {selectedContrat.paiements && selectedContrat.paiements.length > 0 && (
+                                    <div className="mt-6">
+                                        <h3 className="text-lg font-semibold mb-2">Échéancier des Paiements</h3>
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Description</TableHead>
+                                                    <TableHead>Montant</TableHead>
+                                                    <TableHead>Échéance</TableHead>
+                                                    <TableHead>Date Payé</TableHead>
+                                                    <TableHead>Statut</TableHead>
                                                 </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
-                            )}
+                                            </TableHeader>
+                                            <TableBody>
+                                                {selectedContrat.paiements.map(paiement => (
+                                                    <TableRow key={paiement.id}>
+                                                        <TableCell>{paiement.description}</TableCell>
+                                                        <TableCell>{paiement.montant.toLocaleString()} FCFA</TableCell>
+                                                        <TableCell>{new Date(paiement.date_echeance).toLocaleDateString()}</TableCell>
+                                                        <TableCell>{paiement.date_paiement ? new Date(paiement.date_paiement).toLocaleDateString() : 'N/A'}</TableCell>
+                                                        <TableCell>
+                                                            <Badge
+                                                                variant={getPaiementStatusBadgeVariant(paiement.statut)}>
+                                                                {paiement.statut.replace('_', ' ')}
+                                                            </Badge>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                )}
 
-                        </div>
-                    ) : (
-                        <div className="text-center p-4">Chargement des détails...</div>
-                    )}
+                            </div>
+                        ) : (
+                            <div className="text-center p-4">Chargement des détails...</div>
+                        )}
+                    </ScrollArea>
                     <DialogFooter className="mt-4 flex justify-between">
                         {selectedContrat?.statut === 'actif' && (
                             <Button

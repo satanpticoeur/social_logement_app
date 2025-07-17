@@ -105,7 +105,7 @@ export interface Paiement {
     montant: number;
     date_echeance: string;
     date_paiement: string; // Date au format ISO string
-    statut: 'payé' | 'impayé' | 'partiel';
+    statut: 'paye' | 'impaye' | 'partiel';
     cree_le: string;
     contrat?: Contrat; // Peut être inclus si ton API le joint (très utile ici)
 }

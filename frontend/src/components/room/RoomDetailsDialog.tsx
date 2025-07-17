@@ -11,7 +11,6 @@ import {ScrollArea} from "@/components/ui/scroll-area";
 import {EyeIcon} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 
-// Définissez l'interface Chambre exactement comme elle est reçue de votre API pour les détails
 interface ChambreDetails {
     id: number;
     maison_id: number;

@@ -116,6 +116,10 @@ class Paiement(db.Model):
     date_paiement = db.Column(db.DateTime, nullable=True)  # Peut être nullable si non encore payé
     statut = db.Column(db.String(255), nullable=False,
                        default='impayé')  # 'payé' | 'impayé' | 'partiel', statut obligatoire
+
+    paydunya_invoice_token = db.Column(db.String(255), nullable=True, unique=True)
+    paydunya_transaction_id = db.Column(db.String(255), nullable=True, unique=True)
+
     cree_le = db.Column(db.DateTime, default=db.func.current_timestamp())  # Utilise db.func.current_timestamp()
 
     # Relation inverse du contrat

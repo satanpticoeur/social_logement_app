@@ -116,6 +116,8 @@ def logout():
 def protected_get_route():
     json_identity_string = get_jwt_identity()
     current_user_data = json.loads(json_identity_string)
-    # Assurez-vous que vous retournez les informations user_id, role, email ici
+    if not current_user_data:
+        response = jsonify({"message": "Utilisateur non authentifié."})
+        unset_jwt_cookies(response)
     return jsonify(logged_in_as=current_user_data['id'], nom_utilisateur=current_user_data['nom_utilisateur'], role=current_user_data['role'],
                    email=current_user_data['email']), 200

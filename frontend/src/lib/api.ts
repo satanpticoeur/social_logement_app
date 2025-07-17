@@ -32,15 +32,12 @@ export async function authenticatedFetch(endpoint: string, options: RequestInit 
     };
 
     const method = options.method?.toUpperCase() || 'GET';
-    // Ajoute le CSRF token pour les méthodes qui le nécessitent
     if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
         const csrfToken = getCsrfToken();
         if (csrfToken) {
-            // S'assure que headers est un objet mutable et ajoute le token
             (config.headers as Record<string, string>)['X-CSRF-TOKEN'] = csrfToken;
         } else {
             console.warn(`CSRF token missing for ${method} request to ${endpoint}. This might cause an authentication error.`);
-            // Optionnel: vous pourriez vouloir bloquer la requête ou rediriger ici
         }
     }
 

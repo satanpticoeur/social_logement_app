@@ -30,9 +30,7 @@ function getCsrfToken() {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) {
-        const token = parts.pop()?.split(';').shift();
-        console.log("DEBUG: CSRF Token found in cookie:", token);
-        return token;
+        return parts.pop()?.split(';').shift();
     }
     return null;
 }
@@ -67,7 +65,6 @@ export const AuthProvider = ({children}: { children: ReactNode }) => {
                     }
                 }
             } else if (response.status === 401 || response.status === 403) {
-                // on supprime d'abord
                 setUser(null);
             } else {
                 throw new Error(`Erreur HTTP: ${response.status}`);
@@ -97,15 +94,14 @@ export const AuthProvider = ({children}: { children: ReactNode }) => {
             const data = await response.json();
 
             if (response.ok) {
-                console.log("User logged in:", data);
                 setUser({id: data.user_id, nom_utilisateur: data.nom_utilisateur, role: data.role, email: data.email});
                 toast.success("Connexion réussie", {description: `Bienvenue, ${data.role} !`});
                 if (data.role === 'locataire') {
-                    return navigate('/locataire/dashboard');
+                    return navigate('/lodger/dashboard');
                 } else if (data.role === 'proprietaire') {
                     return navigate('/owner/dashboard');
                 }else {
-                    navigate('/');
+                    return navigate('/');
                 }
             } else {
                 throw new Error(data.message || "Erreur lors de la connexion.");

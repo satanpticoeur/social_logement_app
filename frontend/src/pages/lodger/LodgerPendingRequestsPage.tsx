@@ -15,58 +15,53 @@ import { format } from 'date-fns';
 interface ContratLocataire {
     id: number;
     chambre_id: number;
-    chambre_titre: string; // Titre de la chambre associée
-    proprietaire_nom: string; // Nom du propriétaire (si disponible via l'API)
+    chambre_titre: string;
+    proprietaire_nom: string;
     date_debut: string;
     date_fin: string;
     montant_caution: number;
     duree_mois: number;
-    statut: string; // 'en_attente_validation', 'actif', 'rejete', 'termine'
+    statut: string; // Should be 'en_attente_validation' for this page
 }
 
-const LodgerMyRequestsPage: React.FC = () => {
-    const [mesDemandes, setMesDemandes] = useState<ContratLocataire[]>([]);
+const LodgerPendingRequestsPage: React.FC = () => {
+    const [demandesEnAttente, setDemandesEnAttente] = useState<ContratLocataire[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchMesDemandes();
+        fetchDemandesEnAttente();
     }, []);
 
-    const fetchMesDemandes = async () => {
+    const fetchDemandesEnAttente = async () => {
         setLoading(true);
         try {
-            const data: ContratLocataire[] = await authenticatedFetch('locataire/mes-demandes-contrats', { method: 'GET' });
-            setMesDemandes(data);
-            toast.success("Vos demandes et contrats ont été chargés.");
+            // Nouvelle route backend pour les demandes en attente
+            const data: ContratLocataire[] = await authenticatedFetch('locataire/mes-demandes-en-attente', { method: 'GET' });
+            setDemandesEnAttente(data);
+            toast.success(`${data.length} demandes en attente chargées.`);
         } catch (error: any) {
-            console.error('Erreur lors du chargement de vos demandes et contrats:', error);
-            toast.error("Échec du chargement.", { description: error.message || "Erreur inconnue." });
+            console.error('Erreur lors du chargement des demandes en attente:', error);
+            toast.error("Échec du chargement des demandes.", { description: error.message || "Erreur inconnue." });
         } finally {
             setLoading(false);
         }
     };
 
     const getStatusBadgeVariant = (status: string) => {
-        switch (status) {
-            case 'en_attente_validation': return 'secondary'; // Utilisez une variante 'warning' si vous l'avez
-            case 'actif': return 'default';
-            case 'rejete': return 'destructive';
-            case 'termine': return 'secondary';
-            default: return 'outline';
-        }
+        return status === 'en_attente_validation' ? 'secondary' : 'default';
     };
 
     if (loading) {
-        return <div className="text-center p-8">Chargement de vos demandes et contrats...</div>;
+        return <div className="text-center p-8">Chargement de vos demandes en attente...</div>;
     }
 
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-3xl font-bold mb-6 text-center">Mes Demandes et Contrats de Location</h1>
+            <h1 className="text-3xl font-bold mb-6 text-center">Mes Demandes de Location en Attente</h1>
 
-            {mesDemandes.length === 0 ? (
+            {demandesEnAttente.length === 0 ? (
                 <div className="text-center p-8 text-gray-600 border rounded-lg">
-                    <p className="text-lg">Vous n'avez pas encore de demandes ou de contrats de location.</p>
+                    <p className="text-lg">Vous n'avez aucune demande de location en attente pour le moment.</p>
                 </div>
             ) : (
                 <Table>
@@ -78,11 +73,10 @@ const LodgerMyRequestsPage: React.FC = () => {
                             <TableHead>Durée</TableHead>
                             <TableHead>Caution</TableHead>
                             <TableHead>Statut</TableHead>
-                            {/* <TableHead className="text-right">Détails</TableHead> */}
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {mesDemandes.map((contrat) => (
+                        {demandesEnAttente.map((contrat) => (
                             <TableRow key={contrat.id}>
                                 <TableCell className="font-medium">{contrat.chambre_titre}</TableCell>
                                 <TableCell>{contrat.proprietaire_nom || 'N/A'}</TableCell>
@@ -90,18 +84,10 @@ const LodgerMyRequestsPage: React.FC = () => {
                                 <TableCell>{contrat.duree_mois} mois</TableCell>
                                 <TableCell>{contrat.montant_caution.toLocaleString()} FCFA</TableCell>
                                 <TableCell>
-                                    <Badge variant={getStatusBadgeVariant(contrat.statut)} className={`
-                                        ${contrat.statut === 'en_attente_validation' ? 'bg-yellow-100 text-yellow-800' : ''}
-                                        ${contrat.statut === 'actif' ? 'bg-green-100 text-green-800' : ''}
-                                        ${contrat.statut === 'rejete' ? 'bg-red-100 text-red-800' : ''}
-                                        ${contrat.statut === 'termine' ? 'bg-gray-100 text-gray-800' : ''}
-                                    `}>
+                                    <Badge variant={getStatusBadgeVariant(contrat.statut)} className="bg-yellow-100 text-yellow-800">
                                         {contrat.statut.replace(/_/g, ' ')}
                                     </Badge>
                                 </TableCell>
-                                {/* <TableCell className="text-right">
-                                    <Button variant="ghost" size="sm">Voir</Button>
-                                </TableCell> */}
                             </TableRow>
                         ))}
                     </TableBody>
@@ -111,4 +97,4 @@ const LodgerMyRequestsPage: React.FC = () => {
     );
 };
 
-export default LodgerMyRequestsPage;
+export default LodgerPendingRequestsPage;

@@ -2,6 +2,7 @@ import React, {Suspense} from 'react';
 import {Route, Routes} from 'react-router-dom';
 import {HomePage} from '@/pages/HomePage';
 import {LandingPage} from "@/pages/LandingPage.tsx";
+import SearchRoomDetailsPage from "@/components/room/SearchRoomDetailsDialog.tsx";
 
 const LodgerRoutes = React.lazy(() => import('./LodgerRoutes.tsx'));
 const OwnerRoutes = React.lazy(() => import('./OwnerRoutes.tsx'));
@@ -18,9 +19,8 @@ export const AppRoutes: React.FC = () => {
                     <Route index element={<LandingPage/>}/>
                     <Route path="login" element={<LoginPage/>}/>
                     <Route path="register" element={<RegisterPage/>}/>
-
-
                     <Route path="rooms" element={<RoomListPage/>}/>
+                    <Route path="rooms/:roomId" element={<SearchRoomDetailsPage />}/>
                 </Route>
                 <Route path="lodger/*" element={<LodgerRoutes/>}/>
 

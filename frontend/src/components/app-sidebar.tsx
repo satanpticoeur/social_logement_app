@@ -11,9 +11,18 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import {BedDoubleIcon, HandCoinsIcon, HouseIcon, LayoutDashboardIcon, ListIcon, UsersIcon} from "lucide-react";
+import {
+    BedDoubleIcon,
+    HandCoinsIcon,
+    HouseIcon,
+    LayoutDashboardIcon,
+    SignatureIcon,
+    ListTodoIcon,
+    UsersIcon
+} from "lucide-react";
 
 import {useAuth} from "@/context/AuthContext.tsx";
+import {Link} from "react-router-dom";
 
 const ownerNavMain = [
     {
@@ -40,12 +49,12 @@ const ownerNavMain = [
     {
         title: "Contrats",
         url: "contracts",
-        icon: ListIcon,
+        icon: SignatureIcon,
     },
     {
         title: "Demandes de location",
         url: "RentalRequests",
-        icon: UsersIcon,
+        icon: ListTodoIcon,
     },
     {
         title: "Paiements",
@@ -67,7 +76,7 @@ const lodgerNavMain = [
     {
         title: "Contrats",
         url: "contrats",
-        icon: ListIcon,
+        icon: SignatureIcon,
     },
     {
         title: "Paiements",
@@ -77,7 +86,7 @@ const lodgerNavMain = [
     {
         title: "Mes demandes",
         url: "mes-demandes",
-        icon: UsersIcon,
+        icon: ListTodoIcon,
     }
 ]
 
@@ -93,11 +102,11 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
                             asChild
                             className="data-[slot=sidebar-menu-button]:!p-1.5"
                         >
-                            <a href="#">
+                            <Link to="dashboard">
                                 <span className="text-base font-semibold">
                   Social Logment
                 </span>
-                            </a>
+                            </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>

@@ -1,12 +1,13 @@
 import json
 
 from dotenv import load_dotenv
-from flask import Flask, jsonify
+from flask import Flask, jsonify, current_app
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+import paydunya
 
 import os
 
@@ -55,6 +56,16 @@ def create_app(config_class=None):
 
     bcrypt.init_app(app)
     jwt.init_app(app)
+
+    PAYDUNYA_ACCESS_TOKENS = {
+        'PAYDUNYA-MASTER-KEY': app.config['PAYDUNYA_MASTER_KEY'],
+        'PAYDUNYA-PRIVATE-KEY':app.config['PAYDUNYA_PRIVATE_KEY'],
+        'PAYDUNYA-TOKEN': app.config['PAYDUNYA_TOKEN'],
+    }
+
+    paydunya.debug = True
+
+    paydunya.api_keys = PAYDUNYA_ACCESS_TOKENS
 
     with app.app_context():
         from app import models

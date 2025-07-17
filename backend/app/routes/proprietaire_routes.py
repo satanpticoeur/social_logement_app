@@ -275,9 +275,8 @@ def get_contrat_details(contrat_id):
             "id": paiement.id,
             "montant": paiement.montant,
             "date_echeance": paiement.date_echeance.isoformat(),
+            "date_paiement": paiement.date_paiement.isoformat() if paiement.date_paiement else None,
             "statut": paiement.statut,
-            "description": paiement.description,
-            "date_paiement": paiement.date_paiement.isoformat() if paiement.date_paiement else None
         })
 
     contrat_data = {

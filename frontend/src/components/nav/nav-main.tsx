@@ -19,10 +19,6 @@ export function NavMain({items}: {
 
     const pathname = useLocation().pathname;
     const lastSegment = pathname.split('/').pop();
-
-
-    console.log('pathname', lastSegment);
-
     return (
         <SidebarGroup>
             <SidebarGroupContent className="flex flex-col gap-2">
