@@ -145,7 +145,7 @@ Pour lancer l'application complète (backend et frontend) pour le développement
     flask db init #Cela va créer un dossier migrations/ dans le backend
     flask db migrate -m "Initial migration"
     flask db upgrade
-    flask run -- host 0.0.0.0 --debug # pour lancer l'application en mode debug (rafraichissement à chaud...)
+    flask run --host 0.0.0.0 --debug # pour lancer l'application en mode debug (rafraichissement à chaud...)
     ```
 
 2.  **Lancez le Frontend (Application React) :**
