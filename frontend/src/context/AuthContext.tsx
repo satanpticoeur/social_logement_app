@@ -43,7 +43,7 @@ export const AuthProvider = ({children}: { children: ReactNode }) => {
     const checkAuthStatus = useCallback(async () => {
         setLoadingAuth(true);
         try {
-            const response = await fetch(`${BACKEND_URL}/api/protected`, {
+            const response = await fetch(`${BACKEND_URL}/api/auth/protected`, {
                 method: 'GET',
                 credentials: 'include',
             });
@@ -83,7 +83,7 @@ export const AuthProvider = ({children}: { children: ReactNode }) => {
 
     const login = useCallback(async (email: string, password: string) => {
         try {
-            const response = await fetch(`${BACKEND_URL}/api/login`, {
+            const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({email, mot_de_passe: password}),
@@ -122,7 +122,7 @@ export const AuthProvider = ({children}: { children: ReactNode }) => {
                 headers['X-CSRF-TOKEN'] = csrfToken;
             }
 
-            const response = await fetch(`${BACKEND_URL}/api/register`, {
+            const response = await fetch(`${BACKEND_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify(userData),
@@ -152,7 +152,7 @@ export const AuthProvider = ({children}: { children: ReactNode }) => {
                 headers['X-CSRF-TOKEN'] = csrfToken;
             }
 
-            const response = await fetch(`${BACKEND_URL}/api/logout`, {
+            const response = await fetch(`${BACKEND_URL}/api/auth/logout`, {
                 method: 'POST',
                 headers: headers,
                 credentials: 'include',
